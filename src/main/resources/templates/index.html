@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="assets/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="assets/css/bootstrap-switch.css"/>
+    <link rel="stylesheet" href="assets/css/jquery.gritter.css"/>
+
+    <script src="assets/js/jquery-2.0.3.min.js"></script>
+    <script src="assets/js/vue.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/bootstrap-switch.js"></script>
+    <script src="assets/js/jquery.gritter.min.js"></script>
+    <script src="js/setting.js"></script>
+</head>
+<body>
+<div class="rows">
+    <div class="col-sm-8">
+        <form class="form-horizontal" id="ajaxyunstore" role="form">
+            <div id="vue-div">
+                <div class="page-header">
+                    <h3>
+                        腾讯云存储设置
+                        <small>{{version}}</small>
+                        <a href="http://blog.zrlog.com/post/cos-install" target="_blank"
+                           style="float:right">如何寻找这些信息？</a>
+                    </h3>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"> AccessKey </label>
+
+                    <div class="col-sm-6">
+                        <input type="text" placeholder="" class="form-control" :value="val(cos.access_key)"
+                               name="access_key">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"> SecretKey </label>
+
+                    <div class="col-sm-6">
+                        <input type="text" placeholder="" class="form-control" :value="val(cos.secret_key)"
+                               name="secret_key">
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"> 域名 </label>
+
+                    <div class="col-sm-4">
+                        <input type="text" placeholder="" class="form-control"
+                               :value="val(cos.host)" name="host">
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"> 仓库名 </label>
+
+                    <div class="col-sm-3">
+                        <input type="text" placeholder="" class="form-control"
+                               :value="val(cos.bucket)"
+                               name="bucket">
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"> AppId </label>
+
+                    <div class="col-sm-3">
+                        <input type="text" placeholder="" class="form-control"
+                               :value="val(cos.appId)"
+                               name="appId">
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"> Region </label>
+
+                    <div class="col-sm-3">
+                        <input type="text" placeholder="" class="form-control"
+                               :value="val(cos.region)"
+                               name="region">
+
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label no-padding-right"> 主题静态文件同步</label>
+
+                <div class="col-sm-9">
+                    <input type="hidden" name="syncTemplate" id="syncTemplateVal">
+                    <input id="syncTemplate-switch" type="checkbox"/> （需要主题支持）
+                </div>
+            </div>
+            <hr/>
+            <div class="clearfix form-actions">
+                <div class="col-md-offset-3 col-md-9">
+                    <button class="btn btn-info" type="button" id="yunstore">
+                        <i class="icon-ok bigger-110"></i>
+                        提交
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<input id="gritter-light" checked="" type="checkbox" style="display:none"/>
+</body>
+</html>
