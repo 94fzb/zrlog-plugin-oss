@@ -1,5 +1,6 @@
 package com.zrlog.plugin.cos.controller;
 
+import com.google.gson.Gson;
 import com.zrlog.plugin.IMsgPacketCallBack;
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.common.IdUtil;
@@ -8,8 +9,6 @@ import com.zrlog.plugin.data.codec.HttpRequestInfo;
 import com.zrlog.plugin.data.codec.MsgPacket;
 import com.zrlog.plugin.data.codec.MsgPacketStatus;
 import com.zrlog.plugin.type.ActionType;
-import com.google.gson.Gson;
-import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +41,7 @@ public class CosController {
 
     public void info() {
         Map<String, Object> keyMap = new HashMap<>();
-        keyMap.put("key", "access_key,host,secret_key,bucket,syncTemplate,appId,region");
+        keyMap.put("key", "access_key,host,secret_key,bucket,syncTemplate,appId,region,supportHttps");
         session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, new IMsgPacketCallBack() {
             @Override
             public void handler(MsgPacket msgPacket) {

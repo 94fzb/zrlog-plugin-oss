@@ -3,18 +3,18 @@ package com.zrlog.plugin.cos.service;
 import com.fzb.io.api.BucketManageAPI;
 import com.fzb.io.yunstore.QCloudBucketManageImpl;
 import com.fzb.io.yunstore.QCloudBucketVO;
+import com.google.gson.Gson;
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.api.IPluginService;
 import com.zrlog.plugin.api.Service;
 import com.zrlog.plugin.common.IdUtil;
 import com.zrlog.plugin.common.response.UploadFileResponse;
 import com.zrlog.plugin.common.response.UploadFileResponseEntry;
+import com.zrlog.plugin.cos.entry.UploadFile;
 import com.zrlog.plugin.data.codec.ContentType;
 import com.zrlog.plugin.data.codec.MsgPacket;
 import com.zrlog.plugin.data.codec.MsgPacketStatus;
-import com.zrlog.plugin.cos.entry.UploadFile;
 import com.zrlog.plugin.type.ActionType;
-import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -58,19 +58,20 @@ public class UploadService implements IPluginService {
         final UploadFileResponse response = new UploadFileResponse();
         if (uploadFileList != null && !uploadFileList.isEmpty()) {
             final Map<String, Object> keyMap = new HashMap<>();
-            keyMap.put("key", "bucket,access_key,secret_key,host,appId,region");
+            keyMap.put("key", "bucket,access_key,secret_key,host,appId,region,supportHttps");
             int msgId = IdUtil.getInt();
             session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), msgId, MsgPacketStatus.SEND_REQUEST, null);
             MsgPacket packet = session.getResponseMsgPacketByMsgId(msgId);
             Map<String, String> responseMap = new Gson().fromJson(packet.getDataStr(), Map.class);
             QCloudBucketVO bucket = new QCloudBucketVO(responseMap.get("bucket"), responseMap.get("access_key"),
-                    responseMap.get("secret_key"), responseMap.get("host"),Long.valueOf(responseMap.get("appId")),responseMap.get("region"));
+                    responseMap.get("secret_key"), responseMap.get("host"), Long.valueOf(responseMap.get("appId")), responseMap.get("region"));
             BucketManageAPI man = new QCloudBucketManageImpl(bucket);
             for (UploadFile uploadFile : uploadFileList) {
                 LOGGER.info("upload file " + uploadFile.getFile());
                 UploadFileResponseEntry entry = new UploadFileResponseEntry();
                 try {
-                    entry.setUrl(man.create(uploadFile.getFile(), uploadFile.getFileKey(), true).toString());
+                    boolean supportHttps = responseMap.get("supportHttps") != null && "on".equalsIgnoreCase(responseMap.get("supportHttps"));
+                    entry.setUrl(man.create(uploadFile.getFile(), uploadFile.getFileKey(), true, supportHttps));
                 } catch (Exception e) {
                     LOGGER.error("upload error", e);
                     entry.setUrl(uploadFile.getFileKey());

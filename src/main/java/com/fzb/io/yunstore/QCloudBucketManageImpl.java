@@ -1,12 +1,12 @@
 package com.fzb.io.yunstore;
 
 import com.fzb.io.api.BucketManageAPI;
-import com.zrlog.plugin.common.LoggerUtil;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.ClientConfig;
 import com.qcloud.cos.request.DelFileRequest;
 import com.qcloud.cos.request.UploadFileRequest;
 import com.qcloud.cos.sign.Credentials;
+import com.zrlog.plugin.common.LoggerUtil;
 
 import java.io.File;
 import java.util.logging.Level;
@@ -21,22 +21,9 @@ public class QCloudBucketManageImpl implements BucketManageAPI {
         this.cosClient = getCosClient();
     }
 
-    @Override
-    public boolean delFile(String key) {
+    private void delFile(String key) {
         DelFileRequest delFileRequest = new DelFileRequest(qCloudBucketVO.getBucketName(), "/" + key);
         cosClient.delFile(delFileRequest);
-        return true;
-    }
-
-    @Override
-    public String create(File file, String key) {
-        return create(file, key, false);
-    }
-
-    @Override
-    public void resetClient() {
-        this.cosClient.shutdown();
-        this.cosClient = getCosClient();
     }
 
     private COSClient getCosClient() {
@@ -47,7 +34,7 @@ public class QCloudBucketManageImpl implements BucketManageAPI {
     }
 
     @Override
-    public String create(File file, String key, boolean deleteRepeat) {
+    public String create(File file, String key, boolean deleteRepeat, boolean supportHttps) {
         try {
             delFile(key);
         } catch (Exception e) {
@@ -55,7 +42,7 @@ public class QCloudBucketManageImpl implements BucketManageAPI {
         }
         UploadFileRequest uploadFileRequest = new UploadFileRequest(qCloudBucketVO.getBucketName(), "/" + key, file.toString());
         cosClient.uploadFile(uploadFileRequest);
-        return "http://" + qCloudBucketVO.getHost() + "/" + key;
+        return (supportHttps ? "https" : "http") + "://" + qCloudBucketVO.getHost() + "/" + key;
     }
 
 }
