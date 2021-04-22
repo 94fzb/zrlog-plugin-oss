@@ -5,9 +5,11 @@ import com.zrlog.plugin.client.NioClient;
 import com.zrlog.plugin.cos.controller.CosController;
 import com.zrlog.plugin.cos.handler.ConnectHandler;
 import com.zrlog.plugin.cos.service.UploadService;
+import com.zrlog.plugin.cos.service.UploadToPrivateService;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Start {
@@ -17,7 +19,8 @@ public class Start {
     public static void main(String[] args) throws IOException {
         List<Class> classList = new ArrayList<>();
         classList.add(CosController.class);
-        new NioClient(new ConnectHandler(), null).connectServer(args, classList, CosPluginAction.class, UploadService.class);
+        new NioClient(new ConnectHandler(), null)
+                .connectServer(args, classList, CosPluginAction.class, Arrays.asList(UploadService.class, UploadToPrivateService.class));
     }
 }
 

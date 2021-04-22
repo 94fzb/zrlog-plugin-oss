@@ -66,6 +66,16 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"> 私有仓库名 </label>
+
+                    <div class="col-sm-3">
+                        <input type="text" placeholder="用户存储敏感信息，如数据库备份文件" class="form-control"
+                               :value="val(cos.private_bucket)"
+                               name="private_bucket">
+
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="col-sm-3 control-label no-padding-right"> AppId </label>
 
                     <div class="col-sm-3">

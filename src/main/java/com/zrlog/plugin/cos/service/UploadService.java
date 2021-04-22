@@ -26,7 +26,7 @@ import java.util.Map;
 @Service("uploadService")
 public class UploadService implements IPluginService {
 
-    private static Logger LOGGER = Logger.getLogger(UploadService.class);
+    private static final Logger LOGGER = Logger.getLogger(UploadService.class);
 
     @Override
     public void handle(final IOSession ioSession, final MsgPacket requestPacket) {
@@ -38,7 +38,7 @@ public class UploadService implements IPluginService {
             uploadFile.setFile(new File(fileInfo.split(",")[0]));
             String fileKey = fileInfo.split(",")[1];
             if (fileKey.startsWith("/")) {
-                uploadFile.setFileKey(fileKey.substring(1, fileKey.length()));
+                uploadFile.setFileKey(fileKey.substring(1));
             } else {
                 uploadFile.setFileKey(fileKey);
             }
@@ -58,13 +58,14 @@ public class UploadService implements IPluginService {
         final UploadFileResponse response = new UploadFileResponse();
         if (uploadFileList != null && !uploadFileList.isEmpty()) {
             final Map<String, Object> keyMap = new HashMap<>();
-            keyMap.put("key", "bucket,access_key,secret_key,host,appId,region,supportHttps");
+            keyMap.put("key", "access_key,secret_key,host,appId,region,supportHttps");
             int msgId = IdUtil.getInt();
             session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), msgId, MsgPacketStatus.SEND_REQUEST, null);
             MsgPacket packet = session.getResponseMsgPacketByMsgId(msgId);
             Map<String, String> responseMap = new Gson().fromJson(packet.getDataStr(), Map.class);
-            QCloudBucketVO bucket = new QCloudBucketVO(responseMap.get("bucket"), responseMap.get("access_key"),
-                    responseMap.get("secret_key"), responseMap.get("host"), Long.valueOf(responseMap.get("appId")), responseMap.get("region"));
+            QCloudBucketVO bucket = new QCloudBucketVO(getBucketName(session), responseMap.get("access_key"),
+                    responseMap.get("secret_key"), responseMap.get("host"),
+                    Long.valueOf(responseMap.get("appId")), responseMap.get("region"));
             BucketManageAPI man = new QCloudBucketManageImpl(bucket);
             for (UploadFile uploadFile : uploadFileList) {
                 LOGGER.info("upload file " + uploadFile.getFile());
@@ -81,5 +82,19 @@ public class UploadService implements IPluginService {
             LOGGER.info("upload file finish");
         }
         return response;
+    }
+
+    private String getBucketName(IOSession session) {
+        final Map<String, Object> keyMap = new HashMap<>();
+        keyMap.put("key", getBucketKeyName());
+        int msgId = IdUtil.getInt();
+        session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), msgId, MsgPacketStatus.SEND_REQUEST, null);
+        MsgPacket packet = session.getResponseMsgPacketByMsgId(msgId);
+        Map<String, String> responseMap = new Gson().fromJson(packet.getDataStr(), Map.class);
+        return responseMap.get(getBucketKeyName());
+    }
+
+    public String getBucketKeyName() {
+        return "bucket";
     }
 }

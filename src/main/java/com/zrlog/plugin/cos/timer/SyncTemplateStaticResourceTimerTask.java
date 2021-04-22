@@ -21,7 +21,7 @@ import java.util.*;
 
 public class SyncTemplateStaticResourceTimerTask extends TimerTask {
 
-    private IOSession session;
+    private final IOSession session;
 
     private Map<String, Long> fileWatcherMap = new HashMap<>();
 
