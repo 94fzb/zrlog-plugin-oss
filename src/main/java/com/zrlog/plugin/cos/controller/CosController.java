@@ -18,9 +18,9 @@ import java.util.Map;
  */
 public class CosController {
 
-    private IOSession session;
-    private MsgPacket requestPacket;
-    private HttpRequestInfo requestInfo;
+    private final IOSession session;
+    private final MsgPacket requestPacket;
+    private final HttpRequestInfo requestInfo;
 
     public CosController(IOSession session, MsgPacket requestPacket, HttpRequestInfo requestInfo) {
         this.session = session;
@@ -29,26 +29,20 @@ public class CosController {
     }
 
     public void update() {
-        session.sendMsg(new MsgPacket(requestInfo.simpleParam(), ContentType.JSON, MsgPacketStatus.SEND_REQUEST, IdUtil.getInt(), ActionType.SET_WEBSITE.name()), new IMsgPacketCallBack() {
-            @Override
-            public void handler(MsgPacket msgPacket) {
-                Map<String, Object> map = new HashMap<>();
-                map.put("success", true);
-                session.sendMsg(new MsgPacket(map, ContentType.JSON, MsgPacketStatus.RESPONSE_SUCCESS, requestPacket.getMsgId(), requestPacket.getMethodStr()));
-            }
+        session.sendMsg(new MsgPacket(requestInfo.simpleParam(), ContentType.JSON, MsgPacketStatus.SEND_REQUEST, IdUtil.getInt(), ActionType.SET_WEBSITE.name()), msgPacket -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("success", true);
+            session.sendMsg(new MsgPacket(map, ContentType.JSON, MsgPacketStatus.RESPONSE_SUCCESS, requestPacket.getMsgId(), requestPacket.getMethodStr()));
         });
     }
 
     public void info() {
         Map<String, Object> keyMap = new HashMap<>();
-        keyMap.put("key", "access_key,host,secret_key,bucket,syncTemplate,appId,region,supportHttps");
-        session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, new IMsgPacketCallBack() {
-            @Override
-            public void handler(MsgPacket msgPacket) {
-                Map map = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
-                map.put("version", session.getPlugin().getVersion());
-                session.sendMsg(new MsgPacket(map, ContentType.JSON, MsgPacketStatus.RESPONSE_SUCCESS, requestPacket.getMsgId(), requestPacket.getMethodStr()));
-            }
+        keyMap.put("key", "access_key,host,secret_key,private_bucket,bucket,syncTemplate,appId,region,supportHttps");
+        session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
+            Map map = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
+            map.put("version", session.getPlugin().getVersion());
+            session.sendMsg(new MsgPacket(map, ContentType.JSON, MsgPacketStatus.RESPONSE_SUCCESS, requestPacket.getMsgId(), requestPacket.getMethodStr()));
         });
     }
 
