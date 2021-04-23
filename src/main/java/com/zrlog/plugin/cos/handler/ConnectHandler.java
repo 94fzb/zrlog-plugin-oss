@@ -10,7 +10,7 @@ import java.util.Timer;
 
 public class ConnectHandler implements IConnectHandler {
 
-    private static Timer timer = new Timer();
+    private static final Timer timer = new Timer();
 
     @Override
     public void handler(IOSession ioSession, MsgPacket msgPacket) {
