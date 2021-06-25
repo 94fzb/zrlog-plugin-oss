@@ -44,6 +44,7 @@
                 <directory>src/main/resources</directory>
                 <includes>
                     <include>**/*.properties</include>
+                    <include>*.base64</include>
                     <include>**/templates/**</include>
                 </includes>
             </resource>
