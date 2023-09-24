@@ -1,4 +1,4 @@
-package com.zrlog.plugin.cos.service;
+package com.zrlog.plugin.oss.service;
 
 import com.zrlog.plugin.api.Service;
 

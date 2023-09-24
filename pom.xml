@@ -11,8 +11,8 @@
     </parent>
 
     <groupId>com.zrlog</groupId>
-    <artifactId>plugin-cos</artifactId>
-    <version>2.0.17</version>
+    <artifactId>plugin-oss</artifactId>
+    <version>2.1.0</version>
 
     <properties>
         <outputDirectory>/Users/xiaochun/plugins/</outputDirectory>
@@ -65,7 +65,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.zrlog.plugin.cos.Start</mainClass>
+                            <mainClass>com.zrlog.plugin.oss.Start</mainClass>
                         </manifest>
                     </archive>
                     <finalName>cos</finalName>

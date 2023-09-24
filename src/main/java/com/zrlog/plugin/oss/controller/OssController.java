@@ -1,7 +1,6 @@
-package com.zrlog.plugin.cos.controller;
+package com.zrlog.plugin.oss.controller;
 
 import com.google.gson.Gson;
-import com.zrlog.plugin.IMsgPacketCallBack;
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.common.IdUtil;
 import com.zrlog.plugin.data.codec.ContentType;
@@ -16,13 +15,13 @@ import java.util.Map;
 /**
  * Created by xiaochun on 2016/2/13.
  */
-public class CosController {
+public class OssController {
 
     private final IOSession session;
     private final MsgPacket requestPacket;
     private final HttpRequestInfo requestInfo;
 
-    public CosController(IOSession session, MsgPacket requestPacket, HttpRequestInfo requestInfo) {
+    public OssController(IOSession session, MsgPacket requestPacket, HttpRequestInfo requestInfo) {
         this.session = session;
         this.requestPacket = requestPacket;
         this.requestInfo = requestInfo;

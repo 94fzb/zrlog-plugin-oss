@@ -1,1 +1,1 @@
-# zrlog-plugin-cos
+# zrlog-plugin-oss

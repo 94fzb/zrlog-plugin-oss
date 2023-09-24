@@ -1,4 +1,4 @@
-package com.zrlog.plugin.cos.service;
+package com.zrlog.plugin.oss.service;
 
 import com.fzb.io.api.BucketManageAPI;
 import com.fzb.io.yunstore.QCloudBucketManageImpl;
@@ -10,7 +10,7 @@ import com.zrlog.plugin.api.Service;
 import com.zrlog.plugin.common.IdUtil;
 import com.zrlog.plugin.common.response.UploadFileResponse;
 import com.zrlog.plugin.common.response.UploadFileResponseEntry;
-import com.zrlog.plugin.cos.entry.UploadFile;
+import com.zrlog.plugin.oss.entry.UploadFile;
 import com.zrlog.plugin.data.codec.ContentType;
 import com.zrlog.plugin.data.codec.MsgPacket;
 import com.zrlog.plugin.data.codec.MsgPacketStatus;

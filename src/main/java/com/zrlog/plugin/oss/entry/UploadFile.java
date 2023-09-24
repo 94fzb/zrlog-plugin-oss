@@ -1,4 +1,4 @@
-package com.zrlog.plugin.cos.entry;
+package com.zrlog.plugin.oss.entry;
 
 import java.io.File;
 

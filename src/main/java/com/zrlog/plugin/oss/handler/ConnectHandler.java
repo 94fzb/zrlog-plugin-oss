@@ -1,8 +1,8 @@
-package com.zrlog.plugin.cos.handler;
+package com.zrlog.plugin.oss.handler;
 
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.api.IConnectHandler;
-import com.zrlog.plugin.cos.timer.SyncTemplateStaticResourceTimerTask;
+import com.zrlog.plugin.oss.timer.SyncTemplateStaticResourceTimerTask;
 import com.zrlog.plugin.data.codec.MsgPacket;
 
 import java.util.Date;
