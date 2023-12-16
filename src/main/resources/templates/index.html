@@ -21,7 +21,7 @@
             <div id="vue-div">
                 <div class="page-header">
                     <h3>
-                        腾讯云存储设置
+                        阿里云云存储设置
                         <small>{{version}}</small>
                         <a href="https://blog.zrlog.com/post/oss-install" target="_blank"
                            style="float:right">如何寻找这些信息？</a>
@@ -72,16 +72,6 @@
                         <input type="text" placeholder="存储敏感信息，如数据库备份文件" class="form-control"
                                :value="val(cos.private_bucket)"
                                name="private_bucket">
-
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label no-padding-right"> AppId </label>
-
-                    <div class="col-sm-3">
-                        <input type="text" placeholder="" class="form-control"
-                               :value="val(cos.appId)"
-                               name="appId">
 
                     </div>
                 </div>

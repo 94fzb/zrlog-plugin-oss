@@ -63,14 +63,14 @@ public class UploadService implements IPluginService {
         final UploadFileResponse response = new UploadFileResponse();
         if (uploadFileList != null && !uploadFileList.isEmpty()) {
             final Map<String, Object> keyMap = new HashMap<>();
-            keyMap.put("key", "access_key,secret_key,host,appId,region,supportHttps");
+            keyMap.put("key", "access_key,secret_key,host,region,supportHttps");
             int msgId = IdUtil.getInt();
             session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), msgId, MsgPacketStatus.SEND_REQUEST, null);
             MsgPacket packet = session.getResponseMsgPacketByMsgId(msgId);
             Map<String, String> responseMap = new Gson().fromJson(packet.getDataStr(), Map.class);
             AliyunBucketVO bucket = new AliyunBucketVO(getBucketName(session), responseMap.get("access_key"),
                     responseMap.get("secret_key"), responseMap.get("host"),
-                    Long.valueOf(responseMap.get("appId")), responseMap.get("region"));
+                    responseMap.get("region"));
             BucketManageAPI man = new AliyunBucketManageImpl(bucket);
             for (UploadFile uploadFile : uploadFileList) {
                 LOGGER.info("upload file " + uploadFile.getFile());
