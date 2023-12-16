@@ -62,7 +62,7 @@
                             <mainClass>com.zrlog.plugin.oss.Start</mainClass>
                         </manifest>
                     </archive>
-                    <finalName>cos</finalName>
+                    <finalName>oss</finalName>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
