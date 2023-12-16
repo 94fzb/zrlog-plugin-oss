@@ -42,7 +42,7 @@ public class AliyunBucketManageImpl implements BucketManageAPI {
             }
             PutObjectRequest putObjectRequest = new PutObjectRequest(aliyunBucketVO.getBucketName(), key, file);
             ossClient.putObject(putObjectRequest);
-            return (supportHttps ? "https" : "http") + "://" + aliyunBucketVO.getBucketName() + "." + aliyunBucketVO.getHost() + "/" + key;
+            return (supportHttps ? "https" : "http") + "://" + aliyunBucketVO.getHost() + "/" + key;
         } catch (Exception e) {
             LoggerUtil.getLogger(AliyunBucketManageImpl.class).log(Level.SEVERE, "", e);
             return null;
