@@ -1,8 +1,8 @@
 package com.zrlog.plugin.oss.service;
 
 import com.fzb.io.api.BucketManageAPI;
-import com.fzb.io.yunstore.QCloudBucketManageImpl;
-import com.fzb.io.yunstore.QCloudBucketVO;
+import com.fzb.io.yunstore.AliyunBucketManageImpl;
+import com.fzb.io.yunstore.AliyunBucketVO;
 import com.google.gson.Gson;
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.api.IPluginService;
@@ -32,6 +32,18 @@ public class UploadService implements IPluginService {
     public void handle(final IOSession ioSession, final MsgPacket requestPacket) {
         Map<String, Object> request = new Gson().fromJson(requestPacket.getDataStr(), Map.class);
         List<String> fileInfoList = (List<String>) request.get("fileInfo");
+        List<UploadFile> uploadFileList = getUploadFiles(fileInfoList);
+        UploadFileResponse uploadFileResponse = upload(ioSession, uploadFileList);
+        List<Map<String, Object>> responseList = new ArrayList<>();
+        for (UploadFileResponseEntry entry : uploadFileResponse) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("url", entry.getUrl());
+            responseList.add(map);
+        }
+        ioSession.sendMsg(ContentType.JSON, responseList, requestPacket.getMethodStr(), requestPacket.getMsgId(), MsgPacketStatus.RESPONSE_SUCCESS);
+    }
+
+    private static List<UploadFile> getUploadFiles(List<String> fileInfoList) {
         List<UploadFile> uploadFileList = new ArrayList<>();
         for (String fileInfo : fileInfoList) {
             UploadFile uploadFile = new UploadFile();
@@ -44,14 +56,7 @@ public class UploadService implements IPluginService {
             }
             uploadFileList.add(uploadFile);
         }
-        UploadFileResponse uploadFileResponse = upload(ioSession, uploadFileList);
-        List<Map<String, Object>> responseList = new ArrayList<>();
-        for (UploadFileResponseEntry entry : uploadFileResponse) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("url", entry.getUrl());
-            responseList.add(map);
-        }
-        ioSession.sendMsg(ContentType.JSON, responseList, requestPacket.getMethodStr(), requestPacket.getMsgId(), MsgPacketStatus.RESPONSE_SUCCESS);
+        return uploadFileList;
     }
 
     public UploadFileResponse upload(IOSession session, final List<UploadFile> uploadFileList) {
@@ -63,10 +68,10 @@ public class UploadService implements IPluginService {
             session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), msgId, MsgPacketStatus.SEND_REQUEST, null);
             MsgPacket packet = session.getResponseMsgPacketByMsgId(msgId);
             Map<String, String> responseMap = new Gson().fromJson(packet.getDataStr(), Map.class);
-            QCloudBucketVO bucket = new QCloudBucketVO(getBucketName(session), responseMap.get("access_key"),
+            AliyunBucketVO bucket = new AliyunBucketVO(getBucketName(session), responseMap.get("access_key"),
                     responseMap.get("secret_key"), responseMap.get("host"),
                     Long.valueOf(responseMap.get("appId")), responseMap.get("region"));
-            BucketManageAPI man = new QCloudBucketManageImpl(bucket);
+            BucketManageAPI man = new AliyunBucketManageImpl(bucket);
             for (UploadFile uploadFile : uploadFileList) {
                 LOGGER.info("upload file " + uploadFile.getFile());
                 UploadFileResponseEntry entry = new UploadFileResponseEntry();

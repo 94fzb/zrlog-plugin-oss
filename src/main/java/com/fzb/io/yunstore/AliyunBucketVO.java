@@ -1,11 +1,11 @@
 package com.fzb.io.yunstore;
 
-public class QCloudBucketVO extends BucketVO {
+public class AliyunBucketVO extends BucketVO {
 
     private Long appId;
     private String region;
 
-    public QCloudBucketVO(String bucketName, String accessKey, String secretKey,
+    public AliyunBucketVO(String bucketName, String accessKey, String secretKey,
                           String host, Long appId, String region) {
         super(bucketName, accessKey, secretKey, host);
         this.appId = appId;

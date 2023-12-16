@@ -9,7 +9,6 @@ public class BucketVO {
 
     public BucketVO(String bucketName, String accessKey, String secretKey,
                     String host) {
-        super();
         this.bucketName = bucketName;
         this.accessKey = accessKey;
         this.secretKey = secretKey;
