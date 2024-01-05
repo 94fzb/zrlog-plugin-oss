@@ -8,6 +8,7 @@ import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.api.IPluginService;
 import com.zrlog.plugin.api.Service;
 import com.zrlog.plugin.common.IdUtil;
+import com.zrlog.plugin.common.LoggerUtil;
 import com.zrlog.plugin.common.response.UploadFileResponse;
 import com.zrlog.plugin.common.response.UploadFileResponseEntry;
 import com.zrlog.plugin.oss.entry.UploadFile;
@@ -15,7 +16,9 @@ import com.zrlog.plugin.data.codec.ContentType;
 import com.zrlog.plugin.data.codec.MsgPacket;
 import com.zrlog.plugin.data.codec.MsgPacketStatus;
 import com.zrlog.plugin.type.ActionType;
-import org.apache.log4j.Logger;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,7 +29,7 @@ import java.util.Map;
 @Service("uploadService")
 public class UploadService implements IPluginService {
 
-    private static final Logger LOGGER = Logger.getLogger(UploadService.class);
+    private static final Logger LOGGER = LoggerUtil.getLogger(UploadService.class);
 
     @Override
     public void handle(final IOSession ioSession, final MsgPacket requestPacket) {
@@ -79,7 +82,7 @@ public class UploadService implements IPluginService {
                     boolean supportHttps = responseMap.get("supportHttps") != null && "on".equalsIgnoreCase(responseMap.get("supportHttps"));
                     entry.setUrl(man.create(uploadFile.getFile(), uploadFile.getFileKey(), true, supportHttps));
                 } catch (Exception e) {
-                    LOGGER.error("upload error", e);
+                    LOGGER.log(Level.SEVERE,"upload error", e);
                     entry.setUrl(uploadFile.getFileKey());
                 }
                 response.add(entry);
