@@ -17,14 +17,11 @@ import com.zrlog.plugin.data.codec.MsgPacket;
 import com.zrlog.plugin.data.codec.MsgPacketStatus;
 import com.zrlog.plugin.type.ActionType;
 
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service("uploadService")
 public class UploadService implements IPluginService {
@@ -74,20 +71,29 @@ public class UploadService implements IPluginService {
             AliyunBucketVO bucket = new AliyunBucketVO(getBucketName(session), responseMap.get("access_key"),
                     responseMap.get("secret_key"), responseMap.get("host"),
                     responseMap.get("region"));
-            BucketManageAPI man = new AliyunBucketManageImpl(bucket);
-            for (UploadFile uploadFile : uploadFileList) {
-                LOGGER.info("upload file " + uploadFile.getFile());
-                UploadFileResponseEntry entry = new UploadFileResponseEntry();
-                try {
-                    boolean supportHttps = responseMap.get("supportHttps") != null && "on".equalsIgnoreCase(responseMap.get("supportHttps"));
-                    entry.setUrl(man.create(uploadFile.getFile(), uploadFile.getFileKey(), true, supportHttps));
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE,"upload error", e);
+            if (Objects.isNull(bucket.getBucketName()) || bucket.getBucketName().isEmpty()) {
+                LOGGER.warning("missing config " + getBucketName(session));
+                for (UploadFile uploadFile : uploadFileList) {
+                    UploadFileResponseEntry entry = new UploadFileResponseEntry();
                     entry.setUrl(uploadFile.getFileKey());
+                    response.add(entry);
                 }
-                response.add(entry);
+            } else {
+                BucketManageAPI man = new AliyunBucketManageImpl(bucket);
+                for (UploadFile uploadFile : uploadFileList) {
+                    LOGGER.info("upload file " + uploadFile.getFile());
+                    UploadFileResponseEntry entry = new UploadFileResponseEntry();
+                    try {
+                        boolean supportHttps = responseMap.get("supportHttps") != null && "on".equalsIgnoreCase(responseMap.get("supportHttps"));
+                        entry.setUrl(man.create(uploadFile.getFile(), uploadFile.getFileKey(), true, supportHttps));
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "upload error", e);
+                        entry.setUrl(uploadFile.getFileKey());
+                    }
+                    response.add(entry);
+                }
+                LOGGER.info("upload file finish");
             }
-            LOGGER.info("upload file finish");
         }
         return response;
     }
