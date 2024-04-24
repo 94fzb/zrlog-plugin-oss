@@ -65,7 +65,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
                     }
                 }
                 List<UploadFile> uploadFiles = convertToUploadFiles(fileList, blogRunTime.getPath());
-                String cacheFolder = blogRunTime.getPath() + "/cache/zh_CN";
+                String cacheFolder = new File(blogRunTime.getPath()).getParent() + "/cache/zh_CN";
                 File cacheFile = new File(cacheFolder);
                 if (cacheFile.exists()) {
                     File[] fs = cacheFile.listFiles();
