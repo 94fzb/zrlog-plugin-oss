@@ -6,11 +6,11 @@ import com.zrlog.plugin.common.IdUtil;
 import com.zrlog.plugin.common.LoggerUtil;
 import com.zrlog.plugin.common.modle.BlogRunTime;
 import com.zrlog.plugin.common.modle.TemplatePath;
+import com.zrlog.plugin.data.codec.ContentType;
+import com.zrlog.plugin.data.codec.MsgPacketStatus;
 import com.zrlog.plugin.oss.FileUtils;
 import com.zrlog.plugin.oss.entry.UploadFile;
 import com.zrlog.plugin.oss.service.UploadService;
-import com.zrlog.plugin.data.codec.ContentType;
-import com.zrlog.plugin.data.codec.MsgPacketStatus;
 import com.zrlog.plugin.type.ActionType;
 
 import java.io.File;
@@ -45,16 +45,16 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
             BlogRunTime blogRunTime = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.BLOG_RUN_TIME, BlogRunTime.class);
             File templateFilePath = new File(blogRunTime.getPath() + templatePath.getValue());
             if (!templateFilePath.isDirectory()) {
-                LOGGER.log(Level.INFO,"Template path not directory " + templateFilePath);
+                LOGGER.log(Level.INFO, "Template path not directory " + templateFilePath);
             }
             File propertiesFile = new File(templateFilePath + "/template.properties");
-            if(!propertiesFile.exists()){
-                LOGGER.log(Level.SEVERE,"Template properties error " + templateFilePath);
+            if (!propertiesFile.exists()) {
+                LOGGER.log(Level.SEVERE, "Template properties error " + templateFilePath);
 
                 return;
             }
             Properties prop = new Properties();
-            try (FileInputStream fileInputStream = new FileInputStream(propertiesFile)){
+            try (FileInputStream fileInputStream = new FileInputStream(propertiesFile)) {
                 prop.load(fileInputStream);
                 String staticResource = (String) prop.get("staticResource");
                 List<File> fileList = new ArrayList<>();
@@ -64,34 +64,50 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
                         fileList.add(new File(templateFilePath + "/" + sFile));
                     }
                 }
-                new UploadService().upload(session, convertToUploadFiles(fileList, blogRunTime.getPath()));
+                List<UploadFile> uploadFiles = convertToUploadFiles(fileList, blogRunTime.getPath());
+                String cacheFolder = blogRunTime.getPath() + "/cache/zh_CN";
+                File cacheFile = new File(cacheFolder);
+                if (cacheFile.exists()) {
+                    File[] fs = cacheFile.listFiles();
+                    uploadFiles.addAll(convertToUploadFiles(Arrays.asList(fs), cacheFolder));
+                }
+                new UploadService().upload(session, uploadFiles);
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE,"",e);
+                LOGGER.log(Level.SEVERE, "", e);
             }
         });
 
     }
 
-    private List<UploadFile> convertToUploadFiles(List<File> files, String blogRootPath) {
+    private List<UploadFile> convertToUploadFiles(List<File> files, String startPath) {
         List<UploadFile> uploadFiles = new ArrayList<>();
         List<File> fullFileList = new ArrayList<>();
         for (File file : files) {
             FileUtils.getAllFiles(file.toString(), fullFileList);
         }
-        if (!blogRootPath.endsWith("/")) {
-            blogRootPath = blogRootPath + "/";
+        if (!startPath.endsWith("/")) {
+            startPath = startPath + "/";
         }
         for (File file : fullFileList) {
-            if (!file.isDirectory() && file.exists()) {
+            if (!file.exists()) {
+                continue;
+            }
+            if (file.isFile()) {
                 if (fileWatcherMap.get(file.toString()) == null || fileWatcherMap.get(file.toString()) != file.lastModified()) {
                     UploadFile uploadFile = new UploadFile();
                     uploadFile.setFile(file);
 
-                    String key = file.toString().substring(blogRootPath.length());
+                    String key = file.toString().substring(startPath.length());
                     uploadFile.setFileKey(key);
                     uploadFiles.add(uploadFile);
                     fileWatcherMap.put(file.toString(), file.lastModified());
                 }
+            } else if (file.isDirectory()) {
+                File[] fs = file.listFiles();
+                if (fs.length == 0) {
+                    continue;
+                }
+                convertToUploadFiles(Arrays.asList(fs), startPath);
             }
         }
         return uploadFiles;
