@@ -66,6 +66,10 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
                         fileList.add(new File(templateFilePath + "/" + sFile));
                     }
                 }
+                File faviconIco = new File(blogRunTime.getPath() + "/favicon.ico");
+                if (faviconIco.exists()) {
+                    fileList.add(faviconIco);
+                }
                 List<UploadFile> uploadFiles = convertToUploadFiles(fileList, blogRunTime.getPath());
                 String cacheFolder = new File(blogRunTime.getPath()).getParent() + "/cache/zh_CN";
                 File cacheFile = new File(cacheFolder);
