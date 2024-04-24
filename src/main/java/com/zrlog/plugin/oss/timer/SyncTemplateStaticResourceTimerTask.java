@@ -2,6 +2,7 @@ package com.zrlog.plugin.oss.timer;
 
 import com.google.gson.Gson;
 import com.zrlog.plugin.IOSession;
+import com.zrlog.plugin.common.IOUtil;
 import com.zrlog.plugin.common.IdUtil;
 import com.zrlog.plugin.common.LoggerUtil;
 import com.zrlog.plugin.common.modle.BlogRunTime;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.CRC32;
 
 public class SyncTemplateStaticResourceTimerTask extends TimerTask {
 
@@ -79,6 +81,14 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
 
     }
 
+    public static long crc32(File file) throws IOException {
+        CRC32 crc32 = new CRC32();
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            crc32.update(IOUtil.getByteByInputStream(fileInputStream));
+            return Math.abs(crc32.getValue());
+        }
+    }
+
     private List<UploadFile> convertToUploadFiles(List<File> files, String startPath) {
         List<UploadFile> uploadFiles = new ArrayList<>();
         List<File> fullFileList = new ArrayList<>();
@@ -93,15 +103,20 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
                 continue;
             }
             if (file.isFile()) {
-                if (fileWatcherMap.get(file.toString()) == null || fileWatcherMap.get(file.toString()) != file.lastModified()) {
-                    UploadFile uploadFile = new UploadFile();
-                    uploadFile.setFile(file);
-
-                    String key = file.toString().substring(startPath.length());
-                    uploadFile.setFileKey(key);
-                    uploadFiles.add(uploadFile);
-                    fileWatcherMap.put(file.toString(), file.lastModified());
+                try {
+                    long crc32 = crc32(file);
+                    if (fileWatcherMap.get(file.toString()) == null || fileWatcherMap.get(file.toString()) != crc32) {
+                        UploadFile uploadFile = new UploadFile();
+                        uploadFile.setFile(file);
+                        String key = file.toString().substring(startPath.length());
+                        uploadFile.setFileKey(key);
+                        uploadFiles.add(uploadFile);
+                        fileWatcherMap.put(file.toString(), crc32);
+                    }
+                } catch (IOException e) {
+                    LOGGER.warning("Crc32 error " + file.getAbsolutePath());
                 }
+
             } else if (file.isDirectory()) {
                 File[] fs = file.listFiles();
                 if (fs.length == 0) {
