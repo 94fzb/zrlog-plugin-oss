@@ -30,7 +30,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
 
     private final IOSession session;
 
-    private final Map<String, String> fileWatcherMap = new HashMap<>();
+    private final Map<String, Object> fileWatcherMap = new HashMap<>();
 
     public SyncTemplateStaticResourceTimerTask(IOSession session) {
         this.session = session;
@@ -160,7 +160,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
             if (file.isFile()) {
                 try (FileInputStream inputStream = new FileInputStream(file)) {
                     String md5 = md5(IOUtil.getByteByInputStream(inputStream));
-                    if (fileWatcherMap.get(file.toString()) == null || fileWatcherMap.get(file.toString()) != md5) {
+                    if (fileWatcherMap.get(file.toString()) == null || Objects.equals(fileWatcherMap.get(file.toString()), md5)) {
                         UploadFile uploadFile = new UploadFile();
                         uploadFile.setFile(file);
                         String key = file.toString().substring(startPath.length());
