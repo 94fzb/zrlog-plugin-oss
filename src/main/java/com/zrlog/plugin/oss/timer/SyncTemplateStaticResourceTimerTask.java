@@ -82,25 +82,29 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
         String cacheKey = "cacheInfo_hex";
         map.put("key", "syncTemplate,access_key,secret_key,host,region,supportHttps,bucket," + cacheKey);
         session.sendJsonMsg(map, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
-            Map<String, String> responseMap = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
-            LOGGER.info(new Gson().toJson(responseMap));
-            String cacheStr = responseMap.get(cacheKey);
-            if (Objects.nonNull(cacheStr) && !cacheStr.trim().isEmpty()) {
-                fileWatcherMap.putAll(new Gson().fromJson(new String(HexaConversionUtil.HexString2Bytes(cacheStr)), Map.class));
+            try {
+                Map<String, String> responseMap = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
+                LOGGER.info(new Gson().toJson(responseMap));
+                String cacheStr = responseMap.get(cacheKey);
+                if (Objects.nonNull(cacheStr) && !cacheStr.trim().isEmpty()) {
+                    fileWatcherMap.putAll(new Gson().fromJson(new String(HexaConversionUtil.HexString2Bytes(cacheStr)), Map.class));
+                }
+                TemplatePath templatePath = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.CURRENT_TEMPLATE, TemplatePath.class);
+                BlogRunTime blogRunTime = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.BLOG_RUN_TIME, BlogRunTime.class);
+                List<UploadFile> uploadFiles = new ArrayList<>();
+                uploadFiles.addAll(templateUploadFiles(blogRunTime, responseMap, templatePath));
+                uploadFiles.addAll(cacheFiles(blogRunTime));
+                if (uploadFiles.isEmpty()) {
+                    return;
+                }
+                new UploadService().upload(session, uploadFiles);
+                Map<String, String> hashMap = new HashMap<>();
+                hashMap.put(cacheKey, HexaConversionUtil.bytesToHexString(new Gson().toJson(fileWatcherMap).getBytes()));
+                session.sendMsg(new MsgPacket(hashMap, ContentType.JSON, MsgPacketStatus.SEND_REQUEST, IdUtil.getInt(), ActionType.SET_WEBSITE.name()));
+                new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region"), responseMap.get("host"), Objects.equals("on", responseMap.get("supportHttps")), uploadFiles.stream().map(UploadFile::getFileKey).collect(Collectors.toList())).run();
+            } catch (Exception e) {
+                LOGGER.warning("Sync error " + e.getMessage());
             }
-            TemplatePath templatePath = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.CURRENT_TEMPLATE, TemplatePath.class);
-            BlogRunTime blogRunTime = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.BLOG_RUN_TIME, BlogRunTime.class);
-            List<UploadFile> uploadFiles = new ArrayList<>();
-            uploadFiles.addAll(templateUploadFiles(blogRunTime, responseMap, templatePath));
-            uploadFiles.addAll(cacheFiles(blogRunTime));
-            if (uploadFiles.isEmpty()) {
-                return;
-            }
-            new UploadService().upload(session, uploadFiles);
-            Map<String, String> hashMap = new HashMap<>();
-            hashMap.put(cacheKey, HexaConversionUtil.bytesToHexString(new Gson().toJson(fileWatcherMap).getBytes()));
-            session.sendMsg(new MsgPacket(hashMap, ContentType.JSON, MsgPacketStatus.SEND_REQUEST, IdUtil.getInt(), ActionType.SET_WEBSITE.name()));
-            new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region"), responseMap.get("host"), Objects.equals("on", responseMap.get("supportHttps")), uploadFiles.stream().map(UploadFile::getFileKey).collect(Collectors.toList())).run();
         });
     }
 
@@ -118,8 +122,6 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
         }
         return fileList;
     }
-
-
 
 
     private void fillToUploadFiles(List<File> files, String startPath, List<UploadFile> uploadFiles) {
