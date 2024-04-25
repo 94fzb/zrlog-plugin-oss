@@ -68,8 +68,9 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
                     uploadFiles.addAll(convertToUploadFiles(Arrays.asList(fs), cacheFolder));
                 }
                 new UploadService().upload(session, uploadFiles);
-                new PreFetchCdnWorker((String) map.get("access_key"), (String) map.get("secret_key"),
-                        (String) map.get("region"), (String) map.get("host"), (Boolean) map.get("supportHttps"), uploadFiles.stream().map(UploadFile::getFileKey)
+                new PreFetchCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"),
+                        responseMap.get("region"), responseMap.get("host"),
+                        Objects.equals("on", responseMap.get("supportHttps")), uploadFiles.stream().map(UploadFile::getFileKey)
                         .collect(Collectors.toList())).run();
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "", e);

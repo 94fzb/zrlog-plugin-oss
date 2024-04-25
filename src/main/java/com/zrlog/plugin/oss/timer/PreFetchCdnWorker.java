@@ -22,7 +22,7 @@ public class PreFetchCdnWorker implements Runnable {
     private final List<String> urls;
 
     public PreFetchCdnWorker(String accessKeyId, String accessKeySecret, String region, String host, Boolean supportHttps, List<String> preFetchKeys) {
-        IClientProfile profile = DefaultProfile.getProfile(region, accessKeyId, accessKeySecret);
+        IClientProfile profile = DefaultProfile.getProfile(region.replace("oss-", "").replace(".aliyuncs.com", ""), accessKeyId, accessKeySecret);
         client = new DefaultAcsClient(profile);
         this.urls = preFetchKeys.stream().map(e -> (Objects.equals(supportHttps, true) ? "https" : "http") + "://" + host + "/" + e).collect(Collectors.toList());
     }
