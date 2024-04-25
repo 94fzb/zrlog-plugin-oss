@@ -94,24 +94,22 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
     public void run() {
         Map<String, Object> map = new HashMap<>();
         map.put("key", "syncTemplate,syncHtml," + cacheKeyMapKey);
-        session.sendJsonMsg(map, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
-            try {
-                Map<String, String> responseMap = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
-                preloadCache(responseMap);
-                TemplatePath templatePath = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.CURRENT_TEMPLATE, TemplatePath.class);
-                BlogRunTime blogRunTime = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.BLOG_RUN_TIME, BlogRunTime.class);
-                List<UploadFile> uploadFiles = new ArrayList<>();
-                uploadFiles.addAll(templateUploadFiles(blogRunTime, responseMap, templatePath));
-                uploadFiles.addAll(cacheFiles(blogRunTime, responseMap));
-                if (uploadFiles.isEmpty()) {
-                    return;
-                }
-                new UploadService().upload(session, uploadFiles);
-                saveCacheToDb();
-            } catch (Exception e) {
-                LOGGER.warning("Sync error " + e.getMessage());
+        Map<String, String> responseMap = (Map<String, String>) session.getResponseSync(ContentType.JSON, map, ActionType.GET_WEBSITE, Map.class);
+        try {
+            preloadCache(responseMap);
+            TemplatePath templatePath = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.CURRENT_TEMPLATE, TemplatePath.class);
+            BlogRunTime blogRunTime = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.BLOG_RUN_TIME, BlogRunTime.class);
+            List<UploadFile> uploadFiles = new ArrayList<>();
+            uploadFiles.addAll(templateUploadFiles(blogRunTime, responseMap, templatePath));
+            uploadFiles.addAll(cacheFiles(blogRunTime, responseMap));
+            if (uploadFiles.isEmpty()) {
+                return;
             }
-        });
+            new UploadService().upload(session, uploadFiles);
+            saveCacheToDb();
+        } catch (Exception e) {
+            LOGGER.warning("Sync error " + e.getMessage());
+        }
     }
 
     private static List<File> getStaticFolderFiles(String staticResource, File templateFilePath, BlogRunTime blogRunTime) {
