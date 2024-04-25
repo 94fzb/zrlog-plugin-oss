@@ -148,7 +148,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
                         fileWatcherMap.put(file.toString(), md5);
                     }
                 } catch (IOException e) {
-                    LOGGER.warning("Crc32 error " + file.getAbsolutePath());
+                    LOGGER.warning("md5 error " + file.getAbsolutePath());
                 }
 
             } else if (file.isDirectory()) {
