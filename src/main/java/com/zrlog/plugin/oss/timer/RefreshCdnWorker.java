@@ -1,7 +1,7 @@
 package com.zrlog.plugin.oss.timer;
 
 import com.aliyuncs.DefaultAcsClient;
-import com.aliyuncs.cdn.model.v20180510.PushObjectCacheRequest;
+import com.aliyuncs.cdn.model.v20180510.RefreshObjectCachesRequest;
 import com.aliyuncs.http.HttpResponse;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
@@ -15,14 +15,14 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class PreFetchCdnWorker implements Runnable {
+public class RefreshCdnWorker implements Runnable {
 
-    private final Logger LOGGER = LoggerUtil.getLogger(PreFetchCdnWorker.class);
+    private final Logger LOGGER = LoggerUtil.getLogger(RefreshCdnWorker.class);
     private final DefaultAcsClient client;
     private final ForkJoinPool forkJoinPool = new ForkJoinPool(5);
     private final List<String> urls;
 
-    public PreFetchCdnWorker(String accessKeyId, String accessKeySecret, String region, String host, Boolean supportHttps, List<String> preFetchKeys) {
+    public RefreshCdnWorker(String accessKeyId, String accessKeySecret, String region, String host, Boolean supportHttps, List<String> preFetchKeys) {
         IClientProfile profile = DefaultProfile.getProfile(region.replace("oss-", "").replace(".aliyuncs.com", ""), accessKeyId, accessKeySecret);
         this.client = new DefaultAcsClient(profile);
         this.urls = preFetchKeys.stream().map(e -> (Objects.equals(supportHttps, true) ? "https" : "http") + "://" + host + "/" + e).collect(Collectors.toList());
@@ -41,7 +41,7 @@ public class PreFetchCdnWorker implements Runnable {
 
     private void refreshObjectCaches(List<String> urls) {
         urls.stream().map(url -> CompletableFuture.runAsync(() -> {
-            PushObjectCacheRequest request = new PushObjectCacheRequest();
+            RefreshObjectCachesRequest request = new RefreshObjectCachesRequest();
             //要刷新的URI
             request.setObjectPath(url);
             try {

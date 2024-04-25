@@ -19,7 +19,6 @@ import com.zrlog.plugin.type.ActionType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.MessageDigest;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,13 +81,9 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
         String cacheKey = "_cacheInfo";
         map.put("key", "syncTemplate,access_key,secret_key,host,region,supportHttps,bucket," + cacheKey);
         session.sendJsonMsg(map, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
-
             Map<String, String> responseMap = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
-            if (Objects.isNull(responseMap.get("bucket"))) {
-                return;
-            }
-            String cacheStr = responseMap.get(cacheKey);
             LOGGER.info(new Gson().toJson(responseMap));
+            String cacheStr = responseMap.get(cacheKey);
             if (Objects.nonNull(cacheStr) && !cacheStr.trim().isEmpty()) {
                 fileWatcherMap.putAll(new Gson().fromJson(cacheStr, Map.class));
             }
@@ -104,7 +99,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
             Map<String, String> hashMap = new HashMap<>();
             hashMap.put(cacheKey, new Gson().toJson(fileWatcherMap));
             session.sendMsg(new MsgPacket(hashMap, ContentType.JSON, MsgPacketStatus.SEND_REQUEST, IdUtil.getInt(), ActionType.SET_WEBSITE.name()));
-            new PreFetchCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region"), responseMap.get("host"), Objects.equals("on", responseMap.get("supportHttps")), uploadFiles.stream().map(UploadFile::getFileKey).collect(Collectors.toList())).run();
+            new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region"), responseMap.get("host"), Objects.equals("on", responseMap.get("supportHttps")), uploadFiles.stream().map(UploadFile::getFileKey).collect(Collectors.toList())).run();
         });
     }
 
