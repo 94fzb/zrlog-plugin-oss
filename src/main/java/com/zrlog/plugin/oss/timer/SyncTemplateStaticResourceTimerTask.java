@@ -2,6 +2,7 @@ package com.zrlog.plugin.oss.timer;
 
 import com.google.gson.Gson;
 import com.zrlog.plugin.IOSession;
+import com.zrlog.plugin.common.HexaConversionUtil;
 import com.zrlog.plugin.common.IOUtil;
 import com.zrlog.plugin.common.IdUtil;
 import com.zrlog.plugin.common.LoggerUtil;
@@ -78,14 +79,14 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
     @Override
     public void run() {
         Map<String, Object> map = new HashMap<>();
-        String cacheKey = "_cacheInfo";
+        String cacheKey = "cacheInfo_hex";
         map.put("key", "syncTemplate,access_key,secret_key,host,region,supportHttps,bucket," + cacheKey);
         session.sendJsonMsg(map, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
             Map<String, String> responseMap = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
             LOGGER.info(new Gson().toJson(responseMap));
             String cacheStr = responseMap.get(cacheKey);
             if (Objects.nonNull(cacheStr) && !cacheStr.trim().isEmpty()) {
-                fileWatcherMap.putAll(new Gson().fromJson(cacheStr, Map.class));
+                fileWatcherMap.putAll(new Gson().fromJson(new String(HexaConversionUtil.HexString2Bytes(cacheStr)), Map.class));
             }
             TemplatePath templatePath = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.CURRENT_TEMPLATE, TemplatePath.class);
             BlogRunTime blogRunTime = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.BLOG_RUN_TIME, BlogRunTime.class);
@@ -97,7 +98,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
             }
             new UploadService().upload(session, uploadFiles);
             Map<String, String> hashMap = new HashMap<>();
-            hashMap.put(cacheKey, new Gson().toJson(fileWatcherMap));
+            hashMap.put(cacheKey, HexaConversionUtil.bytesToHexString(new Gson().toJson(fileWatcherMap).getBytes()));
             session.sendMsg(new MsgPacket(hashMap, ContentType.JSON, MsgPacketStatus.SEND_REQUEST, IdUtil.getInt(), ActionType.SET_WEBSITE.name()));
             new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region"), responseMap.get("host"), Objects.equals("on", responseMap.get("supportHttps")), uploadFiles.stream().map(UploadFile::getFileKey).collect(Collectors.toList())).run();
         });
