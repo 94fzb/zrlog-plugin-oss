@@ -11,17 +11,16 @@ import com.zrlog.plugin.common.IdUtil;
 import com.zrlog.plugin.common.LoggerUtil;
 import com.zrlog.plugin.common.response.UploadFileResponse;
 import com.zrlog.plugin.common.response.UploadFileResponseEntry;
-import com.zrlog.plugin.oss.entry.UploadFile;
 import com.zrlog.plugin.data.codec.ContentType;
 import com.zrlog.plugin.data.codec.MsgPacket;
 import com.zrlog.plugin.data.codec.MsgPacketStatus;
+import com.zrlog.plugin.oss.entry.UploadFile;
 import com.zrlog.plugin.type.ActionType;
 
+import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import java.io.File;
 
 @Service("uploadService")
 public class UploadService implements IPluginService {
@@ -63,16 +62,17 @@ public class UploadService implements IPluginService {
         final UploadFileResponse response = new UploadFileResponse();
         if (uploadFileList != null && !uploadFileList.isEmpty()) {
             final Map<String, Object> keyMap = new HashMap<>();
-            keyMap.put("key", "access_key,secret_key,host,region,supportHttps");
+            String bucketKeyName = getBucketKeyName();
+            keyMap.put("key", "access_key,secret_key,host,region,supportHttps," +bucketKeyName);
             int msgId = IdUtil.getInt();
             session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), msgId, MsgPacketStatus.SEND_REQUEST, null);
             MsgPacket packet = session.getResponseMsgPacketByMsgId(msgId);
             Map<String, String> responseMap = new Gson().fromJson(packet.getDataStr(), Map.class);
-            AliyunBucketVO bucket = new AliyunBucketVO(getBucketName(session), responseMap.get("access_key"),
+            AliyunBucketVO bucket = new AliyunBucketVO(responseMap.get(bucketKeyName), responseMap.get("access_key"),
                     responseMap.get("secret_key"), responseMap.get("host"),
                     responseMap.get("region"));
             if (Objects.isNull(bucket.getBucketName()) || bucket.getBucketName().isEmpty()) {
-                LOGGER.warning("missing config " + getBucketName(session));
+                LOGGER.warning("missing config " + bucketKeyName);
                 for (UploadFile uploadFile : uploadFileList) {
                     UploadFileResponseEntry entry = new UploadFileResponseEntry();
                     entry.setUrl(uploadFile.getFileKey());
@@ -96,16 +96,6 @@ public class UploadService implements IPluginService {
             }
         }
         return response;
-    }
-
-    private String getBucketName(IOSession session) {
-        final Map<String, Object> keyMap = new HashMap<>();
-        keyMap.put("key", getBucketKeyName());
-        int msgId = IdUtil.getInt();
-        session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), msgId, MsgPacketStatus.SEND_REQUEST, null);
-        MsgPacket packet = session.getResponseMsgPacketByMsgId(msgId);
-        Map<String, String> responseMap = new Gson().fromJson(packet.getDataStr(), Map.class);
-        return responseMap.get(getBucketKeyName());
     }
 
     public String getBucketKeyName() {
