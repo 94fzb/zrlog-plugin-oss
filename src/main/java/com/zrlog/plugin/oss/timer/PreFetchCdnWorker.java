@@ -23,12 +23,15 @@ public class PreFetchCdnWorker implements Runnable {
 
     public PreFetchCdnWorker(String accessKeyId, String accessKeySecret, String region, String host, Boolean supportHttps, List<String> preFetchKeys) {
         IClientProfile profile = DefaultProfile.getProfile(region.replace("oss-", "").replace(".aliyuncs.com", ""), accessKeyId, accessKeySecret);
-        client = new DefaultAcsClient(profile);
+        this.client = new DefaultAcsClient(profile);
         this.urls = preFetchKeys.stream().map(e -> (Objects.equals(supportHttps, true) ? "https" : "http") + "://" + host + "/" + e).collect(Collectors.toList());
     }
 
     @Override
     public void run() {
+        if (urls.isEmpty()) {
+            return;
+        }
         long start = System.currentTimeMillis();
         refreshObjectCaches(urls);
         LOGGER.info("Refresh used time " + (System.currentTimeMillis() - start) + "ms");
