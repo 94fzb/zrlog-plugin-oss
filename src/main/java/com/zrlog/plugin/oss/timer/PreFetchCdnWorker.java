@@ -2,6 +2,7 @@ package com.zrlog.plugin.oss.timer;
 
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.cdn.model.v20180510.PushObjectCacheRequest;
+import com.aliyuncs.http.HttpResponse;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 import com.zrlog.plugin.common.LoggerUtil;
@@ -44,8 +45,8 @@ public class PreFetchCdnWorker implements Runnable {
             //要刷新的URI
             request.setObjectPath(url);
             try {
-                client.doAction(request);
-                //System.out.println("Refresh " + url + " --> response " + new String(httpResponse.getHttpContent()));
+                HttpResponse httpResponse = client.doAction(request);
+                System.out.println("Refresh " + url + " --> response " + new String(httpResponse.getHttpContent()));
             } catch (Exception e) {
                 LOGGER.warning("Refresh " + url + " failed: " + e.getMessage());
             }

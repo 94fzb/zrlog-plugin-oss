@@ -96,7 +96,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
             }
             new UploadService().upload(session, uploadFiles);
             Map<String, String> hashMap = new HashMap<>();
-            hashMap.put("_cacheInfo", new Gson().toJson(fileWatcherMap));
+            hashMap.put(cacheKey, new Gson().toJson(fileWatcherMap));
             session.sendMsg(new MsgPacket(hashMap, ContentType.JSON, MsgPacketStatus.SEND_REQUEST, IdUtil.getInt(), ActionType.SET_WEBSITE.name()));
             new PreFetchCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region"), responseMap.get("host"), Objects.equals("on", responseMap.get("supportHttps")), uploadFiles.stream().map(UploadFile::getFileKey).collect(Collectors.toList())).run();
         });
