@@ -82,13 +82,14 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
         String cacheKey = "_cacheInfo";
         map.put("key", "syncTemplate,access_key,secret_key,host,region,supportHttps,bucket," + cacheKey);
         session.sendJsonMsg(map, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
+
             Map<String, String> responseMap = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
             if (Objects.isNull(responseMap.get("bucket"))) {
                 return;
             }
             String cacheStr = responseMap.get(cacheKey);
+            LOGGER.info(new Gson().toJson(responseMap));
             if (Objects.nonNull(cacheStr) && !cacheStr.trim().isEmpty()) {
-                LOGGER.info(cacheStr);
                 fileWatcherMap.putAll(new Gson().fromJson(cacheStr, Map.class));
             }
             TemplatePath templatePath = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.CURRENT_TEMPLATE, TemplatePath.class);
