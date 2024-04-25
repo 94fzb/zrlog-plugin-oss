@@ -2,15 +2,14 @@ package com.zrlog.plugin.oss.timer;
 
 import com.google.gson.Gson;
 import com.zrlog.plugin.IOSession;
-import com.zrlog.plugin.common.IOUtil;
 import com.zrlog.plugin.common.IdUtil;
 import com.zrlog.plugin.common.LoggerUtil;
+import com.zrlog.plugin.common.SecurityUtils;
 import com.zrlog.plugin.common.modle.BlogRunTime;
 import com.zrlog.plugin.common.modle.TemplatePath;
 import com.zrlog.plugin.data.codec.ContentType;
 import com.zrlog.plugin.data.codec.MsgPacketStatus;
 import com.zrlog.plugin.oss.FileUtils;
-import com.zrlog.plugin.oss.Md5Utils;
 import com.zrlog.plugin.oss.entry.UploadFile;
 import com.zrlog.plugin.oss.service.UploadService;
 import com.zrlog.plugin.type.ActionType;
@@ -141,21 +140,16 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
                 continue;
             }
             if (file.isFile()) {
-                try (FileInputStream inputStream = new FileInputStream(file)) {
-                    String md5 = Md5Utils.md5(IOUtil.getByteByInputStream(inputStream));
-                    if (fileInfoCacheMap.get(file.toString()) == null || !Objects.equals(fileInfoCacheMap.get(file.toString()), md5)) {
-                        UploadFile uploadFile = new UploadFile();
-                        uploadFile.setFile(file);
-                        uploadFile.setRefresh(true);
-                        String key = file.toString().substring(startPath.length());
-                        uploadFile.setFileKey(key);
-                        uploadFiles.add(uploadFile);
-                        fileInfoCacheMap.put(file.toString(), md5);
-                    }
-                } catch (IOException e) {
-                    LOGGER.warning("md5 error " + file.getAbsolutePath());
+                String md5 = SecurityUtils.md5ByFile(file);
+                if (fileInfoCacheMap.get(file.toString()) == null || !Objects.equals(fileInfoCacheMap.get(file.toString()), md5)) {
+                    UploadFile uploadFile = new UploadFile();
+                    uploadFile.setFile(file);
+                    uploadFile.setRefresh(true);
+                    String key = file.toString().substring(startPath.length());
+                    uploadFile.setFileKey(key);
+                    uploadFiles.add(uploadFile);
+                    fileInfoCacheMap.put(file.toString(), md5);
                 }
-
             } else if (file.isDirectory()) {
                 File[] fs = file.listFiles();
                 if (fs.length == 0) {
