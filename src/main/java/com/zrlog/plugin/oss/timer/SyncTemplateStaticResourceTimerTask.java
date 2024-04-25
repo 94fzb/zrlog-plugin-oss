@@ -18,11 +18,11 @@ import com.zrlog.plugin.type.ActionType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.zip.CRC32;
 
 public class SyncTemplateStaticResourceTimerTask extends TimerTask {
 
@@ -30,7 +30,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
 
     private final IOSession session;
 
-    private final Map<String, Long> fileWatcherMap = new HashMap<>();
+    private final Map<String, String> fileWatcherMap = new HashMap<>();
 
     public SyncTemplateStaticResourceTimerTask(IOSession session) {
         this.session = session;
@@ -120,14 +120,30 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
         return fileList;
     }
 
-    public static long crc32(File file) throws IOException {
-        CRC32 crc32 = new CRC32();
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            byte[] bytes = IOUtil.getByteByInputStream(fileInputStream);
-            crc32.update(bytes, 0, bytes.length);
-            return Math.abs(crc32.getValue());
+    private static char[] md5String = {'0', '1', '2', '3', '4', '5', '6', '7', '8',
+            '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+    public static String md5(byte[] bytes) {
+        try {
+            MessageDigest mdInst = MessageDigest.getInstance("MD5");
+            mdInst.update(bytes);
+            byte[] md = mdInst.digest();
+
+            int j = md.length;
+
+            char[] str = new char[j * 2];
+            int k = 0;
+            for (byte byte0 : md) {
+                str[(k++)] = md5String[(byte0 >>> 4 & 0xF)];
+                str[(k++)] = md5String[(byte0 & 0xF)];
+            }
+
+            return new String(str).toLowerCase();
+        } catch (Exception e) {
+            return null;
         }
     }
+
 
     private void fillToUploadFiles(List<File> files, String startPath, List<UploadFile> uploadFiles) {
         List<File> fullFileList = new ArrayList<>();
@@ -142,15 +158,15 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
                 continue;
             }
             if (file.isFile()) {
-                try {
-                    long crc32 = crc32(file);
-                    if (fileWatcherMap.get(file.toString()) == null || fileWatcherMap.get(file.toString()) != crc32) {
+                try (FileInputStream inputStream = new FileInputStream(file)) {
+                    String md5 = md5(IOUtil.getByteByInputStream(inputStream));
+                    if (fileWatcherMap.get(file.toString()) == null || fileWatcherMap.get(file.toString()) != md5) {
                         UploadFile uploadFile = new UploadFile();
                         uploadFile.setFile(file);
                         String key = file.toString().substring(startPath.length());
                         uploadFile.setFileKey(key);
                         uploadFiles.add(uploadFile);
-                        fileWatcherMap.put(file.toString(), crc32);
+                        fileWatcherMap.put(file.toString(), md5);
                     }
                 } catch (IOException e) {
                     LOGGER.warning("Crc32 error " + file.getAbsolutePath());
