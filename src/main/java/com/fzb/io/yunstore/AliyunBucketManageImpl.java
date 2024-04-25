@@ -36,16 +36,11 @@ public class AliyunBucketManageImpl implements BucketManageAPI {
 
     @Override
     public String create(File file, String key, boolean deleteRepeat, boolean supportHttps) {
-        try {
-            if (deleteRepeat) {
-                deleteFile(key);
-            }
-            PutObjectRequest putObjectRequest = new PutObjectRequest(aliyunBucketVO.getBucketName(), key, file);
-            ossClient.putObject(putObjectRequest);
-            return (supportHttps ? "https" : "http") + "://" + aliyunBucketVO.getHost() + "/" + key;
-        } catch (Exception e) {
-            LoggerUtil.getLogger(AliyunBucketManageImpl.class).log(Level.SEVERE, "", e);
-            return null;
+        if (deleteRepeat) {
+            deleteFile(key);
         }
+        PutObjectRequest putObjectRequest = new PutObjectRequest(aliyunBucketVO.getBucketName(), key, file);
+        ossClient.putObject(putObjectRequest);
+        return (supportHttps ? "https" : "http") + "://" + aliyunBucketVO.getHost() + "/" + key;
     }
 }
