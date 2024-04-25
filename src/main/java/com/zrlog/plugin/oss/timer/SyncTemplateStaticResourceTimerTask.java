@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class SyncTemplateStaticResourceTimerTask extends TimerTask {
 
@@ -35,7 +34,10 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
         this.session = session;
     }
 
-    private List<UploadFile> cacheFiles(BlogRunTime blogRunTime) {
+    private List<UploadFile> cacheFiles(BlogRunTime blogRunTime, Map<String, String> responseMap) {
+        if (!"on".equals(responseMap.get("syncHtml"))) {
+            return new ArrayList<>();
+        }
         String cacheFolder = new File(blogRunTime.getPath()).getParent() + "/cache/zh_CN";
         File cacheFile = new File(cacheFolder);
         List<UploadFile> uploadFiles = new ArrayList<>();
@@ -77,7 +79,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
     @Override
     public void run() {
         Map<String, Object> map = new HashMap<>();
-        map.put("key", "syncTemplate,access_key,secret_key,host,region,supportHttps,bucket");
+        map.put("key", "syncTemplate,syncHtml");
         session.sendJsonMsg(map, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
             try {
                 Map<String, String> responseMap = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
@@ -85,12 +87,11 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
                 BlogRunTime blogRunTime = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.BLOG_RUN_TIME, BlogRunTime.class);
                 List<UploadFile> uploadFiles = new ArrayList<>();
                 uploadFiles.addAll(templateUploadFiles(blogRunTime, responseMap, templatePath));
-                uploadFiles.addAll(cacheFiles(blogRunTime));
+                uploadFiles.addAll(cacheFiles(blogRunTime, responseMap));
                 if (uploadFiles.isEmpty()) {
                     return;
                 }
                 new UploadService().upload(session, uploadFiles);
-                new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region"), responseMap.get("host"), Objects.equals("on", responseMap.get("supportHttps")), uploadFiles.stream().map(UploadFile::getFileKey).collect(Collectors.toList())).run();
             } catch (Exception e) {
                 LOGGER.warning("Sync error " + e.getMessage());
             }
@@ -131,6 +132,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
                     if (fileWatcherMap.get(file.toString()) == null || !Objects.equals(fileWatcherMap.get(file.toString()), md5)) {
                         UploadFile uploadFile = new UploadFile();
                         uploadFile.setFile(file);
+                        uploadFile.setRefresh(true);
                         String key = file.toString().substring(startPath.length());
                         uploadFile.setFileKey(key);
                         uploadFiles.add(uploadFile);

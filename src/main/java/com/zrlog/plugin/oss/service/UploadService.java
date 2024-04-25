@@ -15,10 +15,12 @@ import com.zrlog.plugin.data.codec.ContentType;
 import com.zrlog.plugin.data.codec.MsgPacket;
 import com.zrlog.plugin.data.codec.MsgPacketStatus;
 import com.zrlog.plugin.oss.entry.UploadFile;
+import com.zrlog.plugin.oss.timer.RefreshCdnWorker;
 import com.zrlog.plugin.type.ActionType;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,10 +62,11 @@ public class UploadService implements IPluginService {
 
     public UploadFileResponse upload(IOSession session, final List<UploadFile> uploadFileList) {
         final UploadFileResponse response = new UploadFileResponse();
+        long startTime = System.currentTimeMillis();
         if (uploadFileList != null && !uploadFileList.isEmpty()) {
             final Map<String, Object> keyMap = new HashMap<>();
             String bucketKeyName = getBucketKeyName();
-            keyMap.put("key", "access_key,secret_key,host,region,supportHttps," +bucketKeyName);
+            keyMap.put("key", "access_key,secret_key,host,region,supportHttps," + bucketKeyName);
             int msgId = IdUtil.getInt();
             session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), msgId, MsgPacketStatus.SEND_REQUEST, null);
             MsgPacket packet = session.getResponseMsgPacketByMsgId(msgId);
@@ -80,19 +83,26 @@ public class UploadService implements IPluginService {
                 }
             } else {
                 BucketManageAPI man = new AliyunBucketManageImpl(bucket);
+                List<CompletableFuture<Void>> futures = new ArrayList<>();
                 for (UploadFile uploadFile : uploadFileList) {
-                    LOGGER.info("upload file " + uploadFile.getFile());
-                    UploadFileResponseEntry entry = new UploadFileResponseEntry();
-                    try {
-                        boolean supportHttps = responseMap.get("supportHttps") != null && "on".equalsIgnoreCase(responseMap.get("supportHttps"));
-                        entry.setUrl(man.create(uploadFile.getFile(), uploadFile.getFileKey(), true, supportHttps));
-                    } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, "upload error", e);
-                        entry.setUrl(uploadFile.getFileKey());
-                    }
-                    response.add(entry);
+                    futures.add(CompletableFuture.runAsync(() -> {
+                        LOGGER.info("upload file " + uploadFile.getFile());
+                        UploadFileResponseEntry entry = new UploadFileResponseEntry();
+                        try {
+                            boolean supportHttps = responseMap.get("supportHttps") != null && "on".equalsIgnoreCase(responseMap.get("supportHttps"));
+                            entry.setUrl(man.create(uploadFile.getFile(), uploadFile.getFileKey(), true, supportHttps));
+                            if (Objects.equals(uploadFile.getRefresh(), true)) {
+                                new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region")).start(Collections.singletonList(entry.getUrl()));
+                            }
+                        } catch (Exception e) {
+                            LOGGER.log(Level.SEVERE, "upload error", e);
+                            entry.setUrl(uploadFile.getFileKey());
+                        }
+                        response.add(entry);
+                    }));
                 }
-                LOGGER.info("upload file finish");
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+                LOGGER.info("upload file finish use time " + (System.currentTimeMillis() - startTime) + "ms");
             }
         }
         return response;

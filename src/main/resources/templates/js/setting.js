@@ -11,6 +11,8 @@ $(function () {
                 $("#syncTemplate-switch").attr("value", e.syncTemplate);
                 $("#supportHttps-switch").bootstrapSwitch('state', e.supportHttps === 'on');
                 $("#supportHttps-switch").attr("value", e.supportHttps);
+                $("#syncHtml-switch").bootstrapSwitch('state', e.supportHttps === 'on');
+                $("#syncHtml-switch").attr("value", e.supportHttps);
                 cos.$set(cos, 'cos', e);
                 cos.$set(cos, 'version', 'v' + e.version);
             })

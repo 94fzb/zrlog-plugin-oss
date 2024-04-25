@@ -8,28 +8,24 @@ import com.aliyuncs.profile.IClientProfile;
 import com.zrlog.plugin.common.LoggerUtil;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class RefreshCdnWorker implements Runnable {
+public class RefreshCdnWorker {
 
     private final Logger LOGGER = LoggerUtil.getLogger(RefreshCdnWorker.class);
     private final DefaultAcsClient client;
     private final ForkJoinPool forkJoinPool = new ForkJoinPool(5);
-    private final List<String> urls;
 
-    public RefreshCdnWorker(String accessKeyId, String accessKeySecret, String region, String host, Boolean supportHttps, List<String> preFetchKeys) {
+    public RefreshCdnWorker(String accessKeyId, String accessKeySecret, String region) {
         IClientProfile profile = DefaultProfile.getProfile(region.replace("oss-", "").replace(".aliyuncs.com", ""), accessKeyId, accessKeySecret);
         this.client = new DefaultAcsClient(profile);
-        this.urls = preFetchKeys.stream().map(e -> (Objects.equals(supportHttps, true) ? "https" : "http") + "://" + host + "/" + e).collect(Collectors.toList());
     }
 
-    @Override
-    public void run() {
+    public void start(List<String> urls) {
         if (urls.isEmpty()) {
             return;
         }
