@@ -42,7 +42,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
         List<UploadFile> uploadFiles = new ArrayList<>();
         if (cacheFile.exists()) {
             File[] fs = cacheFile.listFiles();
-            uploadFiles.addAll(convertToUploadFiles(Arrays.asList(fs), cacheFolder));
+            fillToUploadFiles(Arrays.asList(fs), cacheFolder, uploadFiles);
         }
         return uploadFiles;
     }
@@ -68,7 +68,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
             prop.load(fileInputStream);
             String staticResource = (String) prop.get("staticResource");
             List<File> fileList = new ArrayList<>(getStaticFolderFiles(staticResource, templateFilePath, blogRunTime));
-            uploadFiles.addAll(convertToUploadFiles(fileList, blogRunTime.getPath()));
+            fillToUploadFiles(fileList, blogRunTime.getPath(), uploadFiles);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "", e);
         }
@@ -126,8 +126,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
         }
     }
 
-    private List<UploadFile> convertToUploadFiles(List<File> files, String startPath) {
-        List<UploadFile> uploadFiles = new ArrayList<>();
+    private void fillToUploadFiles(List<File> files, String startPath, List<UploadFile> uploadFiles) {
         List<File> fullFileList = new ArrayList<>();
         for (File file : files) {
             FileUtils.getAllFiles(file.toString(), fullFileList);
@@ -159,10 +158,9 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
                 if (fs.length == 0) {
                     continue;
                 }
-                convertToUploadFiles(Arrays.asList(fs), startPath);
+                fillToUploadFiles(Arrays.asList(fs), startPath, uploadFiles);
             }
         }
-        return uploadFiles;
     }
 
 }
