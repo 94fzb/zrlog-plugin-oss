@@ -11,6 +11,7 @@ import com.zrlog.plugin.data.codec.ContentType;
 import com.zrlog.plugin.data.codec.MsgPacket;
 import com.zrlog.plugin.data.codec.MsgPacketStatus;
 import com.zrlog.plugin.oss.FileUtils;
+import com.zrlog.plugin.oss.Md5Utils;
 import com.zrlog.plugin.oss.entry.UploadFile;
 import com.zrlog.plugin.oss.service.UploadService;
 import com.zrlog.plugin.type.ActionType;
@@ -120,29 +121,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
         return fileList;
     }
 
-    private static char[] md5String = {'0', '1', '2', '3', '4', '5', '6', '7', '8',
-            '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
-    public static String md5(byte[] bytes) {
-        try {
-            MessageDigest mdInst = MessageDigest.getInstance("MD5");
-            mdInst.update(bytes);
-            byte[] md = mdInst.digest();
-
-            int j = md.length;
-
-            char[] str = new char[j * 2];
-            int k = 0;
-            for (byte byte0 : md) {
-                str[(k++)] = md5String[(byte0 >>> 4 & 0xF)];
-                str[(k++)] = md5String[(byte0 & 0xF)];
-            }
-
-            return new String(str).toLowerCase();
-        } catch (Exception e) {
-            return null;
-        }
-    }
 
 
     private void fillToUploadFiles(List<File> files, String startPath, List<UploadFile> uploadFiles) {
@@ -159,7 +138,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
             }
             if (file.isFile()) {
                 try (FileInputStream inputStream = new FileInputStream(file)) {
-                    String md5 = md5(IOUtil.getByteByInputStream(inputStream));
+                    String md5 = Md5Utils.md5(IOUtil.getByteByInputStream(inputStream));
                     if (fileWatcherMap.get(file.toString()) == null || Objects.equals(fileWatcherMap.get(file.toString()), md5)) {
                         UploadFile uploadFile = new UploadFile();
                         uploadFile.setFile(file);
