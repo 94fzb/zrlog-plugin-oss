@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.zip.CRC32;
 
 public class SyncTemplateStaticResourceTimerTask extends TimerTask {
@@ -37,7 +38,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
     @Override
     public void run() {
         Map<String, Object> map = new HashMap<>();
-        map.put("key", "syncTemplate");
+        map.put("key", "syncTemplate,access_key,secret_key,host,region,supportHttps");
         session.sendJsonMsg(map, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
             Map<String, String> responseMap = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
             if (!"on".equals(responseMap.get("syncTemplate"))) {
@@ -52,7 +53,6 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
             File propertiesFile = new File(templateFilePath + "/template.properties");
             if (!propertiesFile.exists()) {
                 LOGGER.log(Level.SEVERE, "Template properties error " + templateFilePath);
-
                 return;
             }
             Properties prop = new Properties();
@@ -68,6 +68,9 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
                     uploadFiles.addAll(convertToUploadFiles(Arrays.asList(fs), cacheFolder));
                 }
                 new UploadService().upload(session, uploadFiles);
+                new PreFetchCdnWorker((String) map.get("access_key"), (String) map.get("secret_key"),
+                        (String) map.get("region"), (String) map.get("host"), (Boolean) map.get("supportHttps"), uploadFiles.stream().map(UploadFile::getFileKey)
+                        .collect(Collectors.toList())).run();
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "", e);
             }
@@ -93,7 +96,8 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
     public static long crc32(File file) throws IOException {
         CRC32 crc32 = new CRC32();
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            crc32.update(IOUtil.getByteByInputStream(fileInputStream));
+            byte[] bytes = IOUtil.getByteByInputStream(fileInputStream);
+            crc32.update(bytes, 0, bytes.length);
             return Math.abs(crc32.getValue());
         }
     }
