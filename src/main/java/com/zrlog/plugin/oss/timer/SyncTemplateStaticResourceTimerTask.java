@@ -88,6 +88,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
             }
             String cacheStr = responseMap.get(cacheKey);
             if (Objects.nonNull(cacheStr) && !cacheStr.trim().isEmpty()) {
+                LOGGER.info(cacheStr);
                 fileWatcherMap.putAll(new Gson().fromJson(cacheStr, Map.class));
             }
             TemplatePath templatePath = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.CURRENT_TEMPLATE, TemplatePath.class);
