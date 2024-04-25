@@ -14,6 +14,6 @@ public class ConnectHandler implements IConnectHandler {
 
     @Override
     public void handler(IOSession ioSession, MsgPacket msgPacket) {
-        timer.scheduleAtFixedRate(new SyncTemplateStaticResourceTimerTask(ioSession), new Date(), 6000);
+        timer.scheduleAtFixedRate(new SyncTemplateStaticResourceTimerTask(ioSession), new Date(), 1000);
     }
 }
