@@ -11,8 +11,8 @@ $(function () {
                 $("#syncTemplate-switch").attr("value", e.syncTemplate);
                 $("#supportHttps-switch").bootstrapSwitch('state', e.supportHttps === 'on');
                 $("#supportHttps-switch").attr("value", e.supportHttps);
-                $("#syncHtml-switch").bootstrapSwitch('state', e.supportHttps === 'on');
-                $("#syncHtml-switch").attr("value", e.supportHttps);
+                $("#syncHtml-switch").bootstrapSwitch('state', e.syncHtml === 'on');
+                $("#syncHtml-switch").attr("value", e.syncHtml);
                 cos.$set(cos, 'cos', e);
                 cos.$set(cos, 'version', 'v' + e.version);
             })
@@ -29,6 +29,9 @@ $(function () {
     });
     $('#supportHttps-switch').on('switchChange.bootstrapSwitch', function (event, state) {
         $("#supportHttpsVal").attr("value", state ? "on" : "off");
+    });
+    $('#syncHtml-switch').on('switchChange.bootstrapSwitch', function (event, state) {
+        $("#syncHtmlVal").attr("value", state ? "on" : "off");
     });
 
     $(".btn-info").click(function () {
