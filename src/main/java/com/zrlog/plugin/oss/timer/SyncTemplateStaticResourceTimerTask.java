@@ -28,7 +28,8 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
 
     private final IOSession session;
 
-    private final Map<String, Object> fileWatcherMap = new HashMap<>();
+    private final Map<String, Object> fileInfoCacheMap = new TreeMap<>();
+    private final String cacheKeyMapKey = "cacheMap";
 
     public SyncTemplateStaticResourceTimerTask(IOSession session) {
         this.session = session;
@@ -76,13 +77,27 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
         return uploadFiles;
     }
 
+    private void preloadCache(Map<String, String> responseMap) {
+        String cacheMapStr = responseMap.get(cacheKeyMapKey);
+        if (Objects.nonNull(cacheMapStr) && !cacheMapStr.isEmpty()) {
+            fileInfoCacheMap.putAll(new Gson().fromJson(cacheMapStr, Map.class));
+        }
+    }
+
+    private void saveCacheToDb() {
+        Map<String, String> newCacheMap = new TreeMap<>();
+        newCacheMap.put(cacheKeyMapKey, new Gson().toJson(fileInfoCacheMap));
+        session.sendJsonMsg(newCacheMap, ActionType.SET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST);
+    }
+
     @Override
     public void run() {
         Map<String, Object> map = new HashMap<>();
-        map.put("key", "syncTemplate,syncHtml");
+        map.put("key", "syncTemplate,syncHtml," + cacheKeyMapKey);
         session.sendJsonMsg(map, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
             try {
                 Map<String, String> responseMap = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
+                preloadCache(responseMap);
                 TemplatePath templatePath = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.CURRENT_TEMPLATE, TemplatePath.class);
                 BlogRunTime blogRunTime = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.BLOG_RUN_TIME, BlogRunTime.class);
                 List<UploadFile> uploadFiles = new ArrayList<>();
@@ -92,6 +107,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
                     return;
                 }
                 new UploadService().upload(session, uploadFiles);
+                saveCacheToDb();
             } catch (Exception e) {
                 LOGGER.warning("Sync error " + e.getMessage());
             }
@@ -129,14 +145,14 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
             if (file.isFile()) {
                 try (FileInputStream inputStream = new FileInputStream(file)) {
                     String md5 = Md5Utils.md5(IOUtil.getByteByInputStream(inputStream));
-                    if (fileWatcherMap.get(file.toString()) == null || !Objects.equals(fileWatcherMap.get(file.toString()), md5)) {
+                    if (fileInfoCacheMap.get(file.toString()) == null || !Objects.equals(fileInfoCacheMap.get(file.toString()), md5)) {
                         UploadFile uploadFile = new UploadFile();
                         uploadFile.setFile(file);
                         uploadFile.setRefresh(true);
                         String key = file.toString().substring(startPath.length());
                         uploadFile.setFileKey(key);
                         uploadFiles.add(uploadFile);
-                        fileWatcherMap.put(file.toString(), md5);
+                        fileInfoCacheMap.put(file.toString(), md5);
                     }
                 } catch (IOException e) {
                     LOGGER.warning("md5 error " + file.getAbsolutePath());
