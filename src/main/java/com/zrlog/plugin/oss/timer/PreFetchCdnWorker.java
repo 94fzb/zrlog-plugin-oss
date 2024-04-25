@@ -34,7 +34,7 @@ public class PreFetchCdnWorker implements Runnable {
         }
         long start = System.currentTimeMillis();
         refreshObjectCaches(urls);
-        LOGGER.info("Refresh used time " + (System.currentTimeMillis() - start) + "ms");
+        LOGGER.info("Pre fetch cdn used time " + (System.currentTimeMillis() - start) + "ms");
     }
 
 
