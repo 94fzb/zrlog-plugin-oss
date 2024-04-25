@@ -2,7 +2,6 @@ package com.zrlog.plugin.oss.timer;
 
 import com.google.gson.Gson;
 import com.zrlog.plugin.IOSession;
-import com.zrlog.plugin.common.HexaConversionUtil;
 import com.zrlog.plugin.common.IOUtil;
 import com.zrlog.plugin.common.IdUtil;
 import com.zrlog.plugin.common.LoggerUtil;
@@ -129,7 +128,7 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
             if (file.isFile()) {
                 try (FileInputStream inputStream = new FileInputStream(file)) {
                     String md5 = Md5Utils.md5(IOUtil.getByteByInputStream(inputStream));
-                    if (fileWatcherMap.get(file.toString()) == null || Objects.equals(fileWatcherMap.get(file.toString()), md5)) {
+                    if (fileWatcherMap.get(file.toString()) == null || !Objects.equals(fileWatcherMap.get(file.toString()), md5)) {
                         UploadFile uploadFile = new UploadFile();
                         uploadFile.setFile(file);
                         String key = file.toString().substring(startPath.length());
