@@ -91,7 +91,13 @@ public class UploadService implements IPluginService {
                     boolean supportHttps = responseMap.get("supportHttps") != null && "on".equalsIgnoreCase(responseMap.get("supportHttps"));
                     entry.setUrl(man.create(uploadFile.getFile(), uploadFile.getFileKey(), true, supportHttps));
                     if (Objects.equals(uploadFile.getRefresh(), true)) {
-                        new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region")).start(Collections.singletonList(entry.getUrl()));
+                        List<String> urls = new ArrayList<>();
+                        urls.add(entry.getUrl());
+                        //首页的情况，需要额外，更新下不带目录的
+                        if (entry.getUrl().endsWith("/index.html")) {
+                            urls.add(entry.getUrl().substring(0, entry.getUrl().lastIndexOf("/") + 1));
+                        }
+                        new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region")).start(urls);
                     }
                 } catch (Exception e) {
                     LOGGER.log(Level.SEVERE, "upload error " + e.getMessage());
