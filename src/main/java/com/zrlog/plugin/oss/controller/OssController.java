@@ -37,7 +37,7 @@ public class OssController {
 
     public void info() {
         Map<String, Object> keyMap = new HashMap<>();
-        keyMap.put("key", "access_key,host,secret_key,private_bucket,bucket,syncTemplate,appId,region,supportHttps");
+        keyMap.put("key", "access_key,host,secret_key,private_bucket,bucket,syncTemplate,appId,region,supportHttps,syncHtml");
         session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
             Map map = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
             map.put("version", session.getPlugin().getVersion());
