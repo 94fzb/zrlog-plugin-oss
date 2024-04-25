@@ -79,9 +79,12 @@ public class SyncTemplateStaticResourceTimerTask extends TimerTask {
     public void run() {
         Map<String, Object> map = new HashMap<>();
         String cacheKey = "_cacheInfo";
-        map.put("key", "syncTemplate,access_key,secret_key,host,region,supportHttps," + cacheKey);
+        map.put("key", "syncTemplate,access_key,secret_key,host,region,supportHttps,bucket," + cacheKey);
         session.sendJsonMsg(map, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
             Map<String, String> responseMap = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
+            if (Objects.isNull(responseMap.get("bucket"))) {
+                return;
+            }
             String cacheStr = responseMap.get(cacheKey);
             if (Objects.nonNull(cacheStr) && !cacheStr.trim().isEmpty()) {
                 fileWatcherMap.putAll(new Gson().fromJson(cacheStr, Map.class));
