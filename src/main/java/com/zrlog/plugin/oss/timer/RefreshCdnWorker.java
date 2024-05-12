@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 
 public class RefreshCdnWorker {
 
+    private static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool(2);
     private final Logger LOGGER = LoggerUtil.getLogger(RefreshCdnWorker.class);
     private final DefaultAcsClient client;
-    private final ForkJoinPool forkJoinPool = new ForkJoinPool(5);
 
     public RefreshCdnWorker(String accessKeyId, String accessKeySecret, String region) {
         IClientProfile profile = DefaultProfile.getProfile(region.replace("oss-", "").replace(".aliyuncs.com", ""), accessKeyId, accessKeySecret);
@@ -46,7 +46,7 @@ public class RefreshCdnWorker {
             } catch (Exception e) {
                 LOGGER.warning("Refresh " + url + " failed: " + e.getMessage());
             }
-        }, forkJoinPool)).collect(Collectors.toList()).forEach(e -> {
+        }, FORK_JOIN_POOL)).collect(Collectors.toList()).forEach(e -> {
             try {
                 e.get();
             } catch (InterruptedException | ExecutionException ex) {
