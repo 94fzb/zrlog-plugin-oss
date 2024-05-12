@@ -42,7 +42,7 @@ public class RefreshCdnWorker {
             request.setObjectPath(url);
             try {
                 HttpResponse httpResponse = client.doAction(request);
-                System.out.println("Refresh " + url + " --> response " + new String(httpResponse.getHttpContent()));
+                //System.out.println("Refresh " + url + " --> response " + new String(httpResponse.getHttpContent()));
             } catch (Exception e) {
                 LOGGER.warning("Refresh " + url + " failed: " + e.getMessage());
             }

@@ -2,18 +2,19 @@ package com.zrlog.plugin.oss.handler;
 
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.api.IConnectHandler;
-import com.zrlog.plugin.oss.timer.SyncTemplateStaticResourceTimerTask;
 import com.zrlog.plugin.data.codec.MsgPacket;
+import com.zrlog.plugin.oss.timer.SyncTemplateStaticResourceRunnable;
 
-import java.util.Date;
-import java.util.Timer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ConnectHandler implements IConnectHandler {
 
-    private static final Timer timer = new Timer();
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     public void handler(IOSession ioSession, MsgPacket msgPacket) {
-        timer.scheduleAtFixedRate(new SyncTemplateStaticResourceTimerTask(ioSession), new Date(), 1000);
+        executorService.scheduleAtFixedRate(new SyncTemplateStaticResourceRunnable(ioSession), 0, 1, TimeUnit.SECONDS);
     }
 }

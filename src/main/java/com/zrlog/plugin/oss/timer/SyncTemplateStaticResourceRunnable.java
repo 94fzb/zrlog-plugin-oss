@@ -21,16 +21,16 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SyncTemplateStaticResourceTimerTask extends TimerTask {
+public class SyncTemplateStaticResourceRunnable implements Runnable {
 
-    private static final Logger LOGGER = LoggerUtil.getLogger(SyncTemplateStaticResourceTimerTask.class);
+    private static final Logger LOGGER = LoggerUtil.getLogger(SyncTemplateStaticResourceRunnable.class);
 
     private final IOSession session;
 
     private final Map<String, Object> fileInfoCacheMap = new TreeMap<>();
     private final String cacheKeyMapKey = "cacheMap";
 
-    public SyncTemplateStaticResourceTimerTask(IOSession session) {
+    public SyncTemplateStaticResourceRunnable(IOSession session) {
         this.session = session;
     }
 
