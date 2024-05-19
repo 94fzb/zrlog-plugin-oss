@@ -82,31 +82,27 @@ public class UploadService implements IPluginService {
             return response;
         }
         BucketManageAPI man = new AliyunBucketManageImpl(bucket);
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (UploadFile uploadFile : uploadFileList) {
-            futures.add(CompletableFuture.runAsync(() -> {
-                LOGGER.info("upload file " + uploadFile.getFile());
-                UploadFileResponseEntry entry = new UploadFileResponseEntry();
-                try {
-                    boolean supportHttps = responseMap.get("supportHttps") != null && "on".equalsIgnoreCase(responseMap.get("supportHttps"));
-                    entry.setUrl(man.create(uploadFile.getFile(), uploadFile.getFileKey(), true, supportHttps));
-                    if (Objects.equals(uploadFile.getRefresh(), true)) {
-                        List<String> urls = new ArrayList<>();
-                        urls.add(entry.getUrl());
-                        //首页的情况，需要额外，更新下不带目录的
-                        if (entry.getUrl().endsWith("/index.html")) {
-                            urls.add(entry.getUrl().substring(0, entry.getUrl().lastIndexOf("/") + 1));
-                        }
-                        new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region")).start(urls);
+            LOGGER.info("upload file " + uploadFile.getFile());
+            UploadFileResponseEntry entry = new UploadFileResponseEntry();
+            try {
+                boolean supportHttps = responseMap.get("supportHttps") != null && "on".equalsIgnoreCase(responseMap.get("supportHttps"));
+                entry.setUrl(man.create(uploadFile.getFile(), uploadFile.getFileKey(), true, supportHttps));
+                if (Objects.equals(uploadFile.getRefresh(), true)) {
+                    List<String> urls = new ArrayList<>();
+                    urls.add(entry.getUrl());
+                    //首页的情况，需要额外，更新下不带目录的
+                    if (entry.getUrl().endsWith("/index.html")) {
+                        urls.add(entry.getUrl().substring(0, entry.getUrl().lastIndexOf("/") + 1));
                     }
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "upload error " + e.getMessage());
-                    entry.setUrl(uploadFile.getFileKey());
+                    new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region")).start(urls);
                 }
-                response.add(entry);
-            }));
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "upload error " + e.getMessage());
+                entry.setUrl(uploadFile.getFileKey());
+            }
+            response.add(entry);
         }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         LOGGER.info("upload file finish use time " + (System.currentTimeMillis() - startTime) + "ms");
         return response;
     }

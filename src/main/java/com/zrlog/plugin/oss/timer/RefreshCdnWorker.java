@@ -8,15 +8,10 @@ import com.aliyuncs.profile.IClientProfile;
 import com.zrlog.plugin.common.LoggerUtil;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class RefreshCdnWorker {
 
-    private static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool(2);
     private final Logger LOGGER = LoggerUtil.getLogger(RefreshCdnWorker.class);
     private final DefaultAcsClient client;
 
@@ -36,7 +31,7 @@ public class RefreshCdnWorker {
 
 
     private void refreshObjectCaches(List<String> urls) {
-        urls.stream().map(url -> CompletableFuture.runAsync(() -> {
+        urls.forEach((url) -> {
             RefreshObjectCachesRequest request = new RefreshObjectCachesRequest();
             //要刷新的URI
             request.setObjectPath(url);
@@ -45,12 +40,6 @@ public class RefreshCdnWorker {
                 //System.out.println("Refresh " + url + " --> response " + new String(httpResponse.getHttpContent()));
             } catch (Exception e) {
                 LOGGER.warning("Refresh " + url + " failed: " + e.getMessage());
-            }
-        }, FORK_JOIN_POOL)).collect(Collectors.toList()).forEach(e -> {
-            try {
-                e.get();
-            } catch (InterruptedException | ExecutionException ex) {
-                LOGGER.warning("Refresh error " + ex.getMessage());
             }
         });
     }
