@@ -1,5 +1,5 @@
 $(function () {
-    var cos = new Vue({
+    const oss = new Vue({
         el: '#vue-div',
         data: {
             cos: {},
@@ -13,8 +13,8 @@ $(function () {
                 $("#supportHttps-switch").attr("value", e.supportHttps);
                 $("#syncHtml-switch").bootstrapSwitch('state', e.syncHtml === 'on');
                 $("#syncHtml-switch").attr("value", e.syncHtml);
-                cos.$set(cos, 'cos', e);
-                cos.$set(cos, 'version', 'v' + e.version);
+                oss.$set(oss, 'cos', e);
+                oss.$set(oss, 'version', 'v' + e.version);
             })
         },
         methods: {
@@ -35,9 +35,9 @@ $(function () {
     });
 
     $(".btn-info").click(function () {
-        var formId = "ajax" + $(this).attr("id");
+        const formId = "ajax" + $(this).attr("id");
         $.post('update', $("#" + formId).serialize(), function (data) {
-            if (data.success || data.status == 200) {
+            if (data.success || data.status === 200) {
                 $.gritter.add({
                     title: '  操作成功...',
                     class_name: 'gritter-success' + (!$('#gritter-light').get(0).checked ? ' gritter-light' : ''),
