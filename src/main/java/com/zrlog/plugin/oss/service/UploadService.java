@@ -19,7 +19,6 @@ import com.zrlog.plugin.type.ActionType;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,20 +81,18 @@ public class UploadService implements IPluginService {
             return response;
         }
         BucketManageAPI man = new AliyunBucketManageImpl(bucket);
+        List<String> refreshCacheUrls = new ArrayList<>();
         for (UploadFile uploadFile : uploadFileList) {
-            LOGGER.info("upload file " + uploadFile.getFile());
             UploadFileResponseEntry entry = new UploadFileResponseEntry();
             try {
                 boolean supportHttps = responseMap.get("supportHttps") != null && "on".equalsIgnoreCase(responseMap.get("supportHttps"));
                 entry.setUrl(man.create(uploadFile.getFile(), uploadFile.getFileKey(), true, supportHttps));
                 if (Objects.equals(uploadFile.getRefresh(), true)) {
-                    List<String> urls = new ArrayList<>();
-                    urls.add(entry.getUrl());
+                    refreshCacheUrls.add(entry.getUrl());
                     //首页的情况，需要额外，更新下不带目录的
                     if (entry.getUrl().endsWith("/index.html")) {
-                        urls.add(entry.getUrl().substring(0, entry.getUrl().lastIndexOf("/") + 1));
+                        refreshCacheUrls.add(entry.getUrl().substring(0, entry.getUrl().lastIndexOf("/") + 1));
                     }
-                    new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region")).start(urls);
                 }
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "upload error " + e.getMessage());
@@ -103,7 +100,11 @@ public class UploadService implements IPluginService {
             }
             response.add(entry);
         }
-        LOGGER.info("upload file finish use time " + (System.currentTimeMillis() - startTime) + "ms");
+        LOGGER.info("Upload " + uploadFileList.size() + " files finish use time " + (System.currentTimeMillis() - startTime) + "ms");
+        if (refreshCacheUrls.isEmpty()) {
+            return response;
+        }
+        new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region")).start(refreshCacheUrls);
         return response;
     }
 

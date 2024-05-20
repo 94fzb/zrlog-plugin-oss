@@ -8,6 +8,7 @@ import com.aliyuncs.profile.IClientProfile;
 import com.zrlog.plugin.common.LoggerUtil;
 
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.logging.Logger;
 
 public class RefreshCdnWorker {
@@ -31,16 +32,16 @@ public class RefreshCdnWorker {
 
 
     private void refreshObjectCaches(List<String> urls) {
-        urls.forEach((url) -> {
-            RefreshObjectCachesRequest request = new RefreshObjectCachesRequest();
-            //要刷新的URI
-            request.setObjectPath(url);
-            try {
-                HttpResponse httpResponse = client.doAction(request);
-                //System.out.println("Refresh " + url + " --> response " + new String(httpResponse.getHttpContent()));
-            } catch (Exception e) {
-                LOGGER.warning("Refresh " + url + " failed: " + e.getMessage());
-            }
-        });
+        RefreshObjectCachesRequest request = new RefreshObjectCachesRequest();
+        //要刷新的URI
+        StringJoiner stringJoiner = new StringJoiner("\n");
+        urls.forEach(stringJoiner::add);
+        request.setObjectPath(stringJoiner.toString());
+        try {
+            HttpResponse httpResponse = client.doAction(request);
+            //System.out.println("Refresh " + url + " --> response " + new String(httpResponse.getHttpContent()));
+        } catch (Exception e) {
+            LOGGER.warning("Refresh failed: " + e.getMessage());
+        }
     }
 }
