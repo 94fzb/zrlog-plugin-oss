@@ -7,6 +7,7 @@ import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 import com.zrlog.plugin.common.LoggerUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.logging.Logger;
@@ -21,17 +22,31 @@ public class RefreshCdnWorker {
         this.client = new DefaultAcsClient(profile);
     }
 
+    /**
+     * 每次请求最多支持提交 1000 条 URL 刷新或者 100 个目录刷新或者 1 个正则刷新。
+     *
+     * @param urls
+     */
     public void start(List<String> urls) {
         if (urls.isEmpty()) {
             return;
         }
-        long start = System.currentTimeMillis();
-        refreshObjectCaches(urls);
-        LOGGER.info("Refresh cdn used time " + (System.currentTimeMillis() - start) + "ms");
+        int maxSize = 800;
+        List<String> spitsUrls = new ArrayList<>(maxSize);
+        urls.forEach(e -> {
+            //添加到批量更新的 list
+            spitsUrls.add(e);
+            if (spitsUrls.size() == maxSize) {
+                refreshObjectCaches(spitsUrls);
+                spitsUrls.clear();
+            }
+        });
+        //刷新剩余的
+        refreshObjectCaches(spitsUrls);
     }
 
-
     private void refreshObjectCaches(List<String> urls) {
+        long start = System.currentTimeMillis();
         RefreshObjectCachesRequest request = new RefreshObjectCachesRequest();
         //要刷新的URI
         StringJoiner stringJoiner = new StringJoiner("\n");
@@ -42,6 +57,8 @@ public class RefreshCdnWorker {
             //System.out.println("Refresh " + url + " --> response " + new String(httpResponse.getHttpContent()));
         } catch (Exception e) {
             LOGGER.warning("Refresh failed: " + e.getMessage());
+        } finally {
+            LOGGER.info("Refresh cdn used time " + (System.currentTimeMillis() - start) + "ms");
         }
     }
 }
