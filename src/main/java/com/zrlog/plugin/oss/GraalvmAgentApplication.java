@@ -19,11 +19,7 @@ public class GraalvmAgentApplication {
 
 
     public static void main(String[] args) throws IOException, InstantiationException, IllegalAccessException {
-        new Gson().toJson(new HttpRequestInfo());
-        new Gson().toJson(new HashMap<>());
-        new Gson().toJson(new Plugin());
-        new Gson().toJson(new UploadFileResponse());
-        new Gson().toJson(new UploadFileResponseEntry());
+        PluginNativeImageUtils.usedGsonObject();
         UploadService.class.newInstance();
         UploadToPrivateService.class.newInstance();
         String basePath = System.getProperty("user.dir").replace("/target", "");
