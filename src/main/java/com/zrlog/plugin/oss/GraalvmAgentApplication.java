@@ -8,6 +8,7 @@ import com.zrlog.plugin.data.codec.HttpRequestInfo;
 import com.zrlog.plugin.message.Plugin;
 import com.zrlog.plugin.oss.controller.OssController;
 import com.zrlog.plugin.oss.service.UploadService;
+import com.zrlog.plugin.oss.service.UploadToPrivateService;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +25,7 @@ public class GraalvmAgentApplication {
         new Gson().toJson(new UploadFileResponse());
         new Gson().toJson(new UploadFileResponseEntry());
         UploadService.class.newInstance();
+        UploadToPrivateService.class.newInstance();
         String basePath = System.getProperty("user.dir").replace("/target", "");
         //PathKit.setRootPath(basePath);
         File file = new File(basePath + "/src/main/resources");
