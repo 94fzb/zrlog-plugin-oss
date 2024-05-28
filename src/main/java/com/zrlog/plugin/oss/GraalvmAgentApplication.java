@@ -2,6 +2,8 @@ package com.zrlog.plugin.oss;
 
 import com.google.gson.Gson;
 import com.zrlog.plugin.common.PluginNativeImageUtils;
+import com.zrlog.plugin.common.response.UploadFileResponse;
+import com.zrlog.plugin.common.response.UploadFileResponseEntry;
 import com.zrlog.plugin.data.codec.HttpRequestInfo;
 import com.zrlog.plugin.message.Plugin;
 import com.zrlog.plugin.oss.controller.OssController;
@@ -17,6 +19,8 @@ public class GraalvmAgentApplication {
     public static void main(String[] args) throws IOException, InstantiationException, IllegalAccessException {
         new Gson().toJson(new HttpRequestInfo());
         new Gson().toJson(new Plugin());
+        new Gson().toJson(new UploadFileResponse());
+        new Gson().toJson(new UploadFileResponseEntry());
         UploadService.class.newInstance();
         String basePath = System.getProperty("user.dir").replace("/target", "");
         //PathKit.setRootPath(basePath);
