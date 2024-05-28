@@ -27,7 +27,7 @@ public class GraalvmAgentApplication {
         String basePath = System.getProperty("user.dir").replace("/target", "");
         //PathKit.setRootPath(basePath);
         File file = new File(basePath + "/src/main/resources");
-        PluginNativeImageUtils.doLoopResourceLoad(file.listFiles(), file.getPath(), "/");
+        PluginNativeImageUtils.doLoopResourceLoad(file.listFiles(), file.getPath() + "/", "/");
         //Application.nativeAgent = true;
         PluginNativeImageUtils.exposeController(Collections.singletonList(OssController.class));
         Application.main(args);
