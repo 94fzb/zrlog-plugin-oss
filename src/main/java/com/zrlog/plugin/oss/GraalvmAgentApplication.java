@@ -1,24 +1,20 @@
 package com.zrlog.plugin.oss;
 
-import com.google.gson.Gson;
 import com.zrlog.plugin.common.PluginNativeImageUtils;
-import com.zrlog.plugin.common.response.UploadFileResponse;
-import com.zrlog.plugin.common.response.UploadFileResponseEntry;
-import com.zrlog.plugin.data.codec.HttpRequestInfo;
-import com.zrlog.plugin.message.Plugin;
 import com.zrlog.plugin.oss.controller.OssController;
 import com.zrlog.plugin.oss.service.UploadService;
 import com.zrlog.plugin.oss.service.UploadToPrivateService;
+import org.apache.commons.logging.impl.LogFactoryImpl;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 
 public class GraalvmAgentApplication {
 
 
     public static void main(String[] args) throws IOException, InstantiationException, IllegalAccessException {
+        LogFactoryImpl.getLog(GraalvmAgentApplication.class).info("Common logging print");
         PluginNativeImageUtils.usedGsonObject();
         UploadService.class.newInstance();
         UploadToPrivateService.class.newInstance();
