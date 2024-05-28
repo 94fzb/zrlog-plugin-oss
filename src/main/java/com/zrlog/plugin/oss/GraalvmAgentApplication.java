@@ -12,12 +12,14 @@ import com.zrlog.plugin.oss.service.UploadService;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 
 public class GraalvmAgentApplication {
 
 
     public static void main(String[] args) throws IOException, InstantiationException, IllegalAccessException {
         new Gson().toJson(new HttpRequestInfo());
+        new Gson().toJson(new HashMap<>());
         new Gson().toJson(new Plugin());
         new Gson().toJson(new UploadFileResponse());
         new Gson().toJson(new UploadFileResponseEntry());
