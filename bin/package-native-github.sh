@@ -4,4 +4,4 @@ java -version
 ./mvnw -Pnative package
 basePath=/tmp/download/plugin
 mkdir -p ${basePath}
-mv target/changyan ${basePath}/changyan-$(uname -s)-$(uname -m).bin
+mv target/oss ${basePath}/oss-$(uname -s)-$(uname -m).bin
