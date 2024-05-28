@@ -154,6 +154,7 @@
                                     -H:+BuildReport
                                     -H:+AddAllCharsets
                                     -H:+UnlockExperimentalVMOptions
+                                    --initialize-at-build-time=org.apache.commons.logging.LogFactory
                                     --initialize-at-build-time=sun.security.krb5.SCDynamicStoreConfig
                                     --initialize-at-build-time=java.util.ImmutableCollections$ListN
                                     --trace-class-initialization=sun.security.krb5.SCDynamicStoreConfig
