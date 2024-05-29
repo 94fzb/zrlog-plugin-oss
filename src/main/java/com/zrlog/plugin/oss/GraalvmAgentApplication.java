@@ -1,5 +1,6 @@
 package com.zrlog.plugin.oss;
 
+import com.aliyun.oss.internal.Mimetypes;
 import com.aliyuncs.cdn.model.v20180510.RefreshObjectCachesResponse;
 import com.aliyuncs.cdn.model.v20180510fix.RefreshObjectCachesRequest;
 import com.google.gson.Gson;
@@ -20,6 +21,8 @@ public class GraalvmAgentApplication {
 
 
     public static void main(String[] args) throws IOException, InstantiationException, IllegalAccessException {
+        //upload need set content-type
+        Mimetypes.getInstance();
         LogFactoryImpl.getLog(GraalvmAgentApplication.class).info("Common logging print");
         PluginNativeImageUtils.usedGsonObject();
         RefreshObjectCachesResponse refreshObjectCachesResponse = new RefreshObjectCachesResponse();
