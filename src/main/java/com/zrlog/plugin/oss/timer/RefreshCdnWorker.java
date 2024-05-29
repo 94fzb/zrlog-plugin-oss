@@ -16,12 +16,13 @@ import java.util.logging.Logger;
 
 public class RefreshCdnWorker {
 
-    private final Logger LOGGER = LoggerUtil.getLogger(RefreshCdnWorker.class);
+    private static final Logger LOGGER = LoggerUtil.getLogger(RefreshCdnWorker.class);
     private final DefaultAcsClient client;
 
     public RefreshCdnWorker(String accessKeyId, String accessKeySecret, String region) {
         IClientProfile profile = DefaultProfile.getProfile(region.replace("oss-", "").replace(".aliyuncs.com", ""), accessKeyId, accessKeySecret);
         this.client = new DefaultAcsClient(profile);
+        System.out.println("client = " + client);
     }
 
     /**
@@ -43,6 +44,7 @@ public class RefreshCdnWorker {
                 spitsUrls.clear();
             }
         });
+        System.out.println("client = " + spitsUrls);
         //刷新剩余的
         refreshObjectCaches(spitsUrls);
     }
