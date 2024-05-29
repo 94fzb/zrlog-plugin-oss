@@ -20,8 +20,9 @@ public class RefreshCdnWorker {
     private final DefaultAcsClient client;
 
     public RefreshCdnWorker(String accessKeyId, String accessKeySecret, String region) {
+        System.out.println("client = " + "ok");
         IClientProfile profile = DefaultProfile.getProfile(region.replace("oss-", "").replace(".aliyuncs.com", ""), accessKeyId, accessKeySecret);
-        System.out.println("client = " + profile);
+
         this.client = new DefaultAcsClient(profile);
     }
 
