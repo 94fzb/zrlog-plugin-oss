@@ -1,7 +1,7 @@
 package com.zrlog.plugin.oss.timer;
 
 import com.aliyuncs.DefaultAcsClient;
-import com.aliyuncs.cdn.model.v20180510.RefreshObjectCachesRequest;
+import com.aliyuncs.cdn.model.v20180510fix.RefreshObjectCachesRequest;
 import com.aliyuncs.http.HttpResponse;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
