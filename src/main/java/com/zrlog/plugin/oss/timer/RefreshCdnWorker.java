@@ -20,9 +20,7 @@ public class RefreshCdnWorker {
     private final DefaultAcsClient client;
 
     public RefreshCdnWorker(String accessKeyId, String accessKeySecret, String region) {
-        System.out.println("client = " + "ok");
         IClientProfile profile = DefaultProfile.getProfile(region.replace("oss-", "").replace(".aliyuncs.com", ""), accessKeyId, accessKeySecret);
-
         this.client = new DefaultAcsClient(profile);
     }
 
@@ -45,7 +43,6 @@ public class RefreshCdnWorker {
                 spitsUrls.clear();
             }
         });
-        System.out.println("client = " + spitsUrls);
         //刷新剩余的
         refreshObjectCaches(spitsUrls);
     }
