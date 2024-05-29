@@ -54,12 +54,15 @@ public class SyncTemplateStaticResourceRunnable implements Runnable {
         }
         File templateFilePath = new File(blogRunTime.getPath() + templatePath.getValue());
         if (!templateFilePath.isDirectory()) {
+            if (Objects.equals(templatePath.getValue(), "/include/templates/default")) {
+                return new ArrayList<>();
+            }
             LOGGER.log(Level.INFO, "Template path not directory " + templateFilePath);
             return new ArrayList<>();
         }
         File propertiesFile = new File(templateFilePath + "/template.properties");
         if (!propertiesFile.exists()) {
-            LOGGER.log(Level.SEVERE, "Template properties error " + templateFilePath);
+            LOGGER.log(Level.SEVERE, "Template properties not find " + propertiesFile);
             return new ArrayList<>();
         }
         List<UploadFile> uploadFiles = new ArrayList<>();

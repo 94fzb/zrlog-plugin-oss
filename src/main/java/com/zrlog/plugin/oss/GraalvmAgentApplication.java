@@ -1,5 +1,8 @@
 package com.zrlog.plugin.oss;
 
+import com.aliyuncs.cdn.model.v20180510.RefreshObjectCachesRequest;
+import com.aliyuncs.cdn.model.v20180510.RefreshObjectCachesResponse;
+import com.google.gson.Gson;
 import com.zrlog.plugin.common.PluginNativeImageUtils;
 import com.zrlog.plugin.oss.controller.OssController;
 import com.zrlog.plugin.oss.service.UploadService;
@@ -16,6 +19,13 @@ public class GraalvmAgentApplication {
     public static void main(String[] args) throws IOException, InstantiationException, IllegalAccessException {
         LogFactoryImpl.getLog(GraalvmAgentApplication.class).info("Common logging print");
         PluginNativeImageUtils.usedGsonObject();
+        RefreshObjectCachesResponse refreshObjectCachesResponse = new RefreshObjectCachesResponse();
+        refreshObjectCachesResponse.setRefreshTaskId("");
+        refreshObjectCachesResponse.setRequestId("");
+        new Gson().toJson(refreshObjectCachesResponse);
+        RefreshObjectCachesRequest refreshObjectCachesRequest = new RefreshObjectCachesRequest();
+        refreshObjectCachesRequest.setObjectPath("Test");
+        new Gson().toJson(refreshObjectCachesRequest);
         UploadService.class.newInstance();
         UploadToPrivateService.class.newInstance();
         String basePath = System.getProperty("user.dir").replace("/target", "");
