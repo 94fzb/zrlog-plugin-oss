@@ -5,7 +5,9 @@ import com.aliyuncs.cdn.model.v20180510fix.RefreshObjectCachesRequest;
 import com.aliyuncs.http.HttpResponse;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
+import com.zrlog.plugin.RunConstants;
 import com.zrlog.plugin.common.LoggerUtil;
+import com.zrlog.plugin.type.RunType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +56,9 @@ public class RefreshCdnWorker {
         request.setObjectPath(stringJoiner.toString());
         try {
             HttpResponse httpResponse = client.doAction(request);
-            //System.out.println("Refresh " + url + " --> response " + new String(httpResponse.getHttpContent()));
+            if (RunConstants.runType == RunType.DEV) {
+                LOGGER.info(("Refresh --> response " + new String(httpResponse.getHttpContent())));
+            }
         } catch (Exception e) {
             LOGGER.warning("Refresh failed: " + e.getMessage());
         } finally {
