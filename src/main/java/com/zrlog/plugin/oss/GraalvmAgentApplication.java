@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class GraalvmAgentApplication {
 
@@ -33,6 +35,8 @@ public class GraalvmAgentApplication {
         RefreshObjectCachesRequest refreshObjectCachesRequest = new RefreshObjectCachesRequest();
         refreshObjectCachesRequest.setObjectPath("Test");
         builder.create().toJson(refreshObjectCachesRequest);
+        new Gson().toJson(new TreeMap<>());
+        new Gson().fromJson("{}", Map.class);
         new RefreshCdnWorker("test", "test", "oss-cn-chengdu.aliyuncs.com").start(Arrays.asList("https://blog.zrlog.com/?"));
         UploadService.class.newInstance();
         UploadToPrivateService.class.newInstance();
