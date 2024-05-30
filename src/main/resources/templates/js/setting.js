@@ -2,6 +2,7 @@ $(function () {
     const oss = new Vue({
         el: '#vue-div',
         data: {
+            theme: '',
             cos: {},
             version: '',
         },
@@ -14,6 +15,7 @@ $(function () {
                 $("#syncHtml-switch").bootstrapSwitch('state', e.syncHtml === 'on');
                 $("#syncHtml-switch").attr("value", e.syncHtml);
                 oss.$set(oss, 'cos', e);
+                oss.$set(oss, 'theme', e.theme);
                 oss.$set(oss, 'version', 'v' + e.version);
             })
         },

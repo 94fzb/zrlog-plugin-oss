@@ -24,15 +24,13 @@
             background: transparent;
         }
 
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #000;
-                color: #fff
-            }
+        .dark {
+            background-color: #000;
+            color: #fff
         }
     </style>
 </head>
-<body>
+<body class="{{theme}}">
 <form class="form-horizontal" id="ajaxyunstore" role="form" style="width: 100%;max-width: 960px">
     <div id="vue-div">
         <div class="page-header">
