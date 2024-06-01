@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 java -version
 ./mvnw clean package
 ./mvnw -Pnative -Dagent exec:exec@java-agent -U
