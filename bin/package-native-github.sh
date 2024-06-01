@@ -4,4 +4,12 @@ java -version
 ./mvnw -Pnative package
 basePath=/tmp/download/plugin
 mkdir -p ${basePath}
-mv target/oss ${basePath}/oss-$(uname -s)-$(uname -m).bin
+binName=plugin-core
+if [ -f "target/${binName}" ];
+then
+  mv target/${binName} ${basePath}/plugin-core-$(uname -s)-$(uname -m).bin
+fi
+if [ -f "target/${binName}.exe" ];
+then
+  mv target/${binName}.exe ${basePath}/${binName}-Windows-$(uname -m).bin
+fi
