@@ -9,9 +9,11 @@ mkdir -p ${basePath}
 binName=oss
 if [ -f "target/${binName}" ];
 then
+  echo "err"
   mv target/${binName} ${basePath}/${binName}-$(uname -s)-$(uname -m).bin
 fi
 if [ -f "target/${binName}.exe" ];
 then
+  echo "ok ?"
   mv target/${binName}.exe ${basePath}/${binName}-Windows-$(uname -m).exe
 fi
