@@ -9,7 +9,7 @@ mkdir -p ${basePath}
 binName=oss
 if [ -f "target/${binName}" ];
 then
-  mv target/${binName} ${basePath}/plugin-core-$(uname -s)-$(uname -m).bin
+  mv target/${binName} ${basePath}/${binName}-$(uname -s)-$(uname -m).bin
 fi
 if [ -f "target/${binName}.exe" ];
 then
