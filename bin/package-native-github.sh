@@ -11,6 +11,7 @@ if [ -f "target/${binName}.exe" ];
 then
   echo "window"
   mv "target/${binName}.exe" "${basePath}/${binName}-Windows-$(uname -m).exe"
+  exit 0;
 fi
 if [ -f "target/${binName}" ];
 then
