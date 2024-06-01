@@ -11,7 +11,7 @@
     <properties>
         <outputDirectory>/Users/xiaochun/plugins/</outputDirectory>
         <imageName>oss</imageName>
-        <native.maven.plugin.version>0.9.18</native.maven.plugin.version>
+        <native.maven.plugin.version>0.10.2</native.maven.plugin.version>
         <native.image.mainClass>com.zrlog.plugin.oss.Application</native.image.mainClass>
         <native.image.agentMainClass>com.zrlog.plugin.oss.GraalvmAgentApplication</native.image.agentMainClass>
     </properties>
@@ -179,9 +179,6 @@
                             <mainClass>${native.image.mainClass}</mainClass>
                             <agent>
                                 <enabled>true</enabled>
-                                <options>
-                                    <option>experimental-class-loader-support</option>
-                                </options>
                             </agent>
                         </configuration>
                     </plugin>

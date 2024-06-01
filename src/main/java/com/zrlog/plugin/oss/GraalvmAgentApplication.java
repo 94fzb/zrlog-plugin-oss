@@ -40,7 +40,7 @@ public class GraalvmAgentApplication {
         new RefreshCdnWorker("test", "test", "oss-cn-chengdu.aliyuncs.com").start(Arrays.asList("https://blog.zrlog.com/?"));
         UploadService.class.newInstance();
         UploadToPrivateService.class.newInstance();
-        String basePath = System.getProperty("user.dir").replace("/target", "");
+        String basePath = System.getProperty("user.dir").replace("\\target", "").replace("/target", "");
         //PathKit.setRootPath(basePath);
         File file = new File(basePath + "/src/main/resources");
         PluginNativeImageUtils.doLoopResourceLoad(file.listFiles(), file.getPath() + "/", "/");
