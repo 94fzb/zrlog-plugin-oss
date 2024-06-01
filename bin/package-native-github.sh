@@ -13,5 +13,5 @@ then
 fi
 if [ -f "target/${binName}.exe" ];
 then
-  mv target/${binName}.exe ${basePath}/${binName}-Windows-$(uname -m).bin
+  mv target/${binName}.exe ${basePath}/${binName}-Windows-$(uname -m).exe
 fi
