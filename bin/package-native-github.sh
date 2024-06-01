@@ -6,7 +6,7 @@ java -version
 ./mvnw -Pnative package
 basePath=/tmp/download/plugin
 mkdir -p ${basePath}
-binName=plugin-core
+binName=oss
 if [ -f "target/${binName}" ];
 then
   mv target/${binName} ${basePath}/plugin-core-$(uname -s)-$(uname -m).bin
