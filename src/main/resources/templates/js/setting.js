@@ -7,7 +7,7 @@ $(function () {
             version: '',
         },
         mounted: function () {
-            const e = JSON.parse(document.getElementById("data").val());
+            const e = JSON.parse(document.getElementById("data").innerText);
             $("#syncTemplate-switch").bootstrapSwitch('state', e.syncTemplate === 'on');
             $("#syncTemplate-switch").attr("value", e.syncTemplate);
             $("#supportHttps-switch").bootstrapSwitch('state', e.supportHttps === 'on');
