@@ -37,20 +37,16 @@ public class OssController {
         });
     }
 
-    public void info() {
+    public void index() {
         Map<String, Object> keyMap = new HashMap<>();
         keyMap.put("key", "access_key,host,secret_key,private_bucket,bucket,syncTemplate,appId,region,supportHttps,syncHtml");
         session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
             Map map = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
             map.put("version", session.getPlugin().getVersion());
             map.put("theme", Objects.equals(requestInfo.getHeader().get("Dark-Mode"), "true") ? "dark" : "light");
-            session.sendMsg(new MsgPacket(map, ContentType.JSON, MsgPacketStatus.RESPONSE_SUCCESS, requestPacket.getMsgId(), requestPacket.getMethodStr()));
+            Map<String, Object> data = new HashMap<>();
+            data.put("data", new Gson().toJson(map));
+            session.responseHtmlStr(new SimpleTemplateRender().render("/templates/index.html", session.getPlugin(), data), requestPacket.getMethodStr(), requestPacket.getMsgId());
         });
-    }
-
-    public void index() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("theme", Objects.equals(requestInfo.getHeader().get("Dark-Mode"), "true") ? "dark" : "light");
-        session.responseHtmlStr(new SimpleTemplateRender().render("/templates/index.html", session.getPlugin(), map), requestPacket.getMethodStr(), requestPacket.getMsgId());
     }
 }

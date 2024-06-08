@@ -7,17 +7,16 @@ $(function () {
             version: '',
         },
         mounted: function () {
-            $.get("info", function (e) {
-                $("#syncTemplate-switch").bootstrapSwitch('state', e.syncTemplate === 'on');
-                $("#syncTemplate-switch").attr("value", e.syncTemplate);
-                $("#supportHttps-switch").bootstrapSwitch('state', e.supportHttps === 'on');
-                $("#supportHttps-switch").attr("value", e.supportHttps);
-                $("#syncHtml-switch").bootstrapSwitch('state', e.syncHtml === 'on');
-                $("#syncHtml-switch").attr("value", e.syncHtml);
-                oss.$set(oss, 'cos', e);
-                oss.$set(oss, 'theme', e.theme);
-                oss.$set(oss, 'version', 'v' + e.version);
-            })
+            const e = JSON.parse(document.getElementById("data").val());
+            $("#syncTemplate-switch").bootstrapSwitch('state', e.syncTemplate === 'on');
+            $("#syncTemplate-switch").attr("value", e.syncTemplate);
+            $("#supportHttps-switch").bootstrapSwitch('state', e.supportHttps === 'on');
+            $("#supportHttps-switch").attr("value", e.supportHttps);
+            $("#syncHtml-switch").bootstrapSwitch('state', e.syncHtml === 'on');
+            $("#syncHtml-switch").attr("value", e.syncHtml);
+            oss.$set(oss, 'cos', e);
+            oss.$set(oss, 'theme', e.theme);
+            oss.$set(oss, 'version', 'v' + e.version);
         },
         methods: {
             val: function (val) {
