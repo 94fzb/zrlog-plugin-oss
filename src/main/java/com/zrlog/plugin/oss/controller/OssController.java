@@ -7,6 +7,7 @@ import com.zrlog.plugin.data.codec.ContentType;
 import com.zrlog.plugin.data.codec.HttpRequestInfo;
 import com.zrlog.plugin.data.codec.MsgPacket;
 import com.zrlog.plugin.data.codec.MsgPacketStatus;
+import com.zrlog.plugin.oss.render.SimpleTemplateRender;
 import com.zrlog.plugin.type.ActionType;
 
 import java.util.HashMap;
@@ -48,6 +49,8 @@ public class OssController {
     }
 
     public void index() {
-        session.responseHtml("/templates/index.html", new HashMap(), requestPacket.getMethodStr(), requestPacket.getMsgId());
+        Map<String, Object> map = new HashMap<>();
+        map.put("theme", Objects.equals(requestInfo.getHeader().get("Dark-Mode"), "true") ? "dark" : "light");
+        session.responseHtmlStr(new SimpleTemplateRender().render("/templates/index.html", session.getPlugin(), map), requestPacket.getMethodStr(), requestPacket.getMsgId());
     }
 }
