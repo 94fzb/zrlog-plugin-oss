@@ -45,7 +45,7 @@
             <label class="col-sm-3 control-label no-padding-right"> AccessKey </label>
 
             <div class="col-sm-6">
-                <input type="text" placeholder="" class="form-control" :value="val(cos.access_key)"
+                <input type="text" placeholder="" class="form-control" :value="val(oss.access_key)"
                        name="access_key">
             </div>
         </div>
@@ -54,7 +54,7 @@
             <label class="col-sm-3 control-label no-padding-right"> SecretKey </label>
 
             <div class="col-sm-6">
-                <input type="text" placeholder="" class="form-control" :value="val(cos.secret_key)"
+                <input type="text" placeholder="" class="form-control" :value="val(oss.secret_key)"
                        name="secret_key">
 
             </div>
@@ -65,7 +65,7 @@
 
             <div class="col-sm-4">
                 <input type="text" placeholder="" class="form-control"
-                       :value="val(cos.host)" name="host">
+                       :value="val(oss.host)" name="host">
 
             </div>
         </div>
@@ -74,7 +74,7 @@
 
             <div class="col-sm-3">
                 <input type="text" placeholder="" class="form-control"
-                       :value="val(cos.bucket)"
+                       :value="val(oss.bucket)"
                        name="bucket">
 
             </div>
@@ -84,7 +84,7 @@
 
             <div class="col-sm-3">
                 <input type="text" placeholder="存储敏感信息，如数据库备份文件" class="form-control"
-                       :value="val(cos.private_bucket)"
+                       :value="val(oss.private_bucket)"
                        name="private_bucket">
 
             </div>
@@ -94,7 +94,7 @@
 
             <div class="col-sm-3">
                 <input type="text" placeholder="" class="form-control"
-                       :value="val(cos.region)"
+                       :value="val(oss.region)"
                        name="region">
 
             </div>

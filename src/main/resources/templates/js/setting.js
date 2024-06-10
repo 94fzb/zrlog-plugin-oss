@@ -11,7 +11,7 @@ $(function () {
     new Vue({
         el: '#vue-div',
         data: {
-            cos: e,
+            oss: e,
             version: e.version,
         },
         methods: {
