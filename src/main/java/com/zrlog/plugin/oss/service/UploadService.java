@@ -46,12 +46,16 @@ public class UploadService implements IPluginService {
         List<UploadFile> uploadFileList = new ArrayList<>();
         for (String fileInfo : fileInfoList) {
             UploadFile uploadFile = new UploadFile();
-            uploadFile.setFile(new File(fileInfo.split(",")[0]));
-            String fileKey = fileInfo.split(",")[1];
+            String[] infos = fileInfo.split(",");
+            uploadFile.setFile(new File(infos[0]));
+            String fileKey = infos[1];
             if (fileKey.startsWith("/")) {
                 uploadFile.setFileKey(fileKey.substring(1));
             } else {
                 uploadFile.setFileKey(fileKey);
+            }
+            if (infos.length > 2) {
+                uploadFile.setRefresh(Boolean.parseBoolean(infos[2]));
             }
             uploadFileList.add(uploadFile);
         }
