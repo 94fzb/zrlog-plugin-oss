@@ -2,17 +2,16 @@ $(function () {
     const e = JSON.parse(document.getElementById("data").innerText);
 
     $("#syncTemplate-switch").bootstrapSwitch('state', e.syncTemplate === 'on');
-    $("#syncTemplate-switch").attr("value", e.syncTemplate);
+    $("#syncTemplateVal").attr("value", e.syncTemplate);
     $("#supportHttps-switch").bootstrapSwitch('state', e.supportHttps === 'on');
-    $("#supportHttps-switch").attr("value", e.supportHttps);
+    $("#supportHttpsVal").attr("value", e.supportHttps);
     $("#syncHtml-switch").bootstrapSwitch('state', e.syncHtml === 'on');
-    $("#syncHtml-switch").attr("value", e.syncHtml);
+    $("#syncHtmlVal").attr("value", e.syncHtml);
 
     new Vue({
         el: '#vue-div',
         data: {
-            oss: e,
-            version: e.version,
+            oss: e
         },
         methods: {
             val: function (val) {

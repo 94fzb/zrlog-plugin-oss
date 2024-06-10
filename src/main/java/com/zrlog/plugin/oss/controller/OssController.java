@@ -44,6 +44,7 @@ public class OssController {
             map.put("version", session.getPlugin().getVersion());
             Map<String, Object> data = new HashMap<>();
             data.put("data", new Gson().toJson(map));
+            data.put("version", session.getPlugin().getVersion());
             data.put("theme", Objects.equals(requestInfo.getHeader().get("Dark-Mode"), "true") ? "dark" : "light");
             session.responseHtml("/templates/index.html", data, requestPacket.getMethodStr(), requestPacket.getMsgId());
         });
