@@ -11,10 +11,11 @@ import com.zrlog.plugin.type.RunType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.logging.Logger;
 
-public class RefreshCdnWorker {
+public class RefreshCdnWorker implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerUtil.getLogger(RefreshCdnWorker.class);
     private final DefaultAcsClient client;
@@ -64,5 +65,13 @@ public class RefreshCdnWorker {
         } finally {
             LOGGER.info("Refresh cdn used time " + (System.currentTimeMillis() - start) + "ms");
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (Objects.isNull(client)) {
+            return;
+        }
+        client.shutdown();
     }
 }

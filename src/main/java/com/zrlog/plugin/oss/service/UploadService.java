@@ -108,8 +108,10 @@ public class UploadService implements IPluginService {
             if (refreshCacheUrls.isEmpty()) {
                 return response;
             }
-            new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region")).start(refreshCacheUrls);
-            return response;
+            try (RefreshCdnWorker refreshCdnWorker = new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region"))) {
+                refreshCdnWorker.start(refreshCacheUrls);
+                return response;
+            }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "upload error " + e.getMessage());
         }
