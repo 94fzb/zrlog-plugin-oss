@@ -8,6 +8,7 @@ import com.fzb.io.api.BucketManageAPI;
 import com.zrlog.plugin.common.LoggerUtil;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.logging.Level;
 
 public class AliyunBucketManageImpl implements BucketManageAPI {
@@ -42,5 +43,13 @@ public class AliyunBucketManageImpl implements BucketManageAPI {
         PutObjectRequest putObjectRequest = new PutObjectRequest(aliyunBucketVO.getBucketName(), key, file);
         ossClient.putObject(putObjectRequest);
         return (supportHttps ? "https" : "http") + "://" + aliyunBucketVO.getHost() + "/" + key;
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (Objects.isNull(ossClient)) {
+            return;
+        }
+        ossClient.shutdown();
     }
 }

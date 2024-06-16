@@ -84,31 +84,35 @@ public class UploadService implements IPluginService {
             }
             return response;
         }
-        BucketManageAPI man = new AliyunBucketManageImpl(bucket);
-        List<String> refreshCacheUrls = new ArrayList<>();
-        for (UploadFile uploadFile : uploadFileList) {
-            UploadFileResponseEntry entry = new UploadFileResponseEntry();
-            try {
-                boolean supportHttps = responseMap.get("supportHttps") != null && "on".equalsIgnoreCase(responseMap.get("supportHttps"));
-                entry.setUrl(man.create(uploadFile.getFile(), uploadFile.getFileKey(), true, supportHttps));
-                if (Objects.equals(uploadFile.getRefresh(), true)) {
-                    refreshCacheUrls.add(entry.getUrl());
-                    //首页的情况，需要额外，更新下不带目录的
-                    if (entry.getUrl().endsWith("/index.html")) {
-                        refreshCacheUrls.add(entry.getUrl().substring(0, entry.getUrl().lastIndexOf("/") + 1));
+        try (BucketManageAPI man = new AliyunBucketManageImpl(bucket)) {
+            List<String> refreshCacheUrls = new ArrayList<>();
+            for (UploadFile uploadFile : uploadFileList) {
+                UploadFileResponseEntry entry = new UploadFileResponseEntry();
+                try {
+                    boolean supportHttps = responseMap.get("supportHttps") != null && "on".equalsIgnoreCase(responseMap.get("supportHttps"));
+                    entry.setUrl(man.create(uploadFile.getFile(), uploadFile.getFileKey(), true, supportHttps));
+                    if (Objects.equals(uploadFile.getRefresh(), true)) {
+                        refreshCacheUrls.add(entry.getUrl());
+                        //首页的情况，需要额外，更新下不带目录的
+                        if (entry.getUrl().endsWith("/index.html")) {
+                            refreshCacheUrls.add(entry.getUrl().substring(0, entry.getUrl().lastIndexOf("/") + 1));
+                        }
                     }
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "upload error " + e.getMessage());
+                    entry.setUrl(uploadFile.getFileKey());
                 }
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "upload error " + e.getMessage());
-                entry.setUrl(uploadFile.getFileKey());
+                response.add(entry);
             }
-            response.add(entry);
-        }
-        LOGGER.info("Upload " + uploadFileList.size() + " files finish use time " + (System.currentTimeMillis() - startTime) + "ms");
-        if (refreshCacheUrls.isEmpty()) {
+            LOGGER.info("Upload " + uploadFileList.size() + " files finish use time " + (System.currentTimeMillis() - startTime) + "ms");
+            if (refreshCacheUrls.isEmpty()) {
+                return response;
+            }
+            new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region")).start(refreshCacheUrls);
             return response;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "upload error " + e.getMessage());
         }
-        new RefreshCdnWorker(responseMap.get("access_key"), responseMap.get("secret_key"), responseMap.get("region")).start(refreshCacheUrls);
         return response;
     }
 
