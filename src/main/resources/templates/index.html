@@ -4,13 +4,11 @@
     <title>阿里云对象存储设置</title>
     <meta charset="utf-8"/>
     <link rel="stylesheet" href="assets/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="assets/css/bootstrap-switch.css"/>
     <link rel="stylesheet" href="assets/css/jquery.gritter.css"/>
 
     <script src="assets/js/jquery-2.0.3.min.js"></script>
     <script src="assets/js/vue.js"></script>
     <script src="assets/js/bootstrap.min.js"></script>
-    <script src="assets/js/bootstrap-switch.js"></script>
     <script src="assets/js/jquery.gritter.min.js"></script>
     <script src="js/setting.js"></script>
     <style>
@@ -28,111 +26,137 @@
             background-color: #000;
             color: #fff
         }
+
+        .mb-3 {
+            display: flex;
+            align-items: center;
+        }
+
+        .form-horizontal {
+            text-align: end;
+        }
+
+        @media (max-device-width: 600px) {
+            .form-horizontal {
+                text-align: start;
+            }
+        }
     </style>
 </head>
-<body class="${theme}">
-<form class="form-horizontal" id="ajaxyunstore" role="form" style="width: 100%;max-width: 960px">
-    <div id="vue-div">
-        <div class="page-header">
-            <h3>
-                阿里云 OSS 对象存储设置
-                <small>v${version}</small>
-                <a href="https://blog.zrlog.com/oss-install.html" target="_blank"
-                   style="float:right">如何寻找这些信息？</a>
-            </h3>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-3 control-label no-padding-right"> AccessKey </label>
+<body class="${theme}" style="max-width: 960px">
+<div id="vue-div">
+<div class="page-header" style="padding-top: 20px">
+    <h3 style="display: flex;align-items: center;justify-content: space-between">
+        <span>阿里云 OSS 对象存储设置
+        <small>v${version}</small>
+        </span>
+        <a href="https://blog.zrlog.com/oss-install.html" target="_blank"
+           style="float:right;font-size: 18px;font-weight: 400">如何寻找这些信息？</a>
+    </h3>
+    <hr style="color: #a4a1a1"/>
+</div>
+    <form class="form-horizontal" id="ajaxyunstore" role="form" style="width: 100%;max-width: 960px">
+    <div class="form-group row mb-3">
+        <label class="col-sm-3 control-label no-padding-right"> AccessKey </label>
 
-            <div class="col-sm-6">
-                <input type="text" placeholder="" class="form-control" :value="val(oss.access_key)"
-                       name="access_key">
+        <div class="col-sm-6">
+            <input type="text" placeholder="" class="form-control" :value="val(oss.access_key)"
+                   name="access_key">
+        </div>
+    </div>
+
+    <div class="form-group row  mb-3">
+        <label class="col-sm-3 control-label no-padding-right"> SecretKey </label>
+
+        <div class="col-sm-6">
+            <input type="text" placeholder="" class="form-control" :value="val(oss.secret_key)"
+                   name="secret_key">
+
+        </div>
+    </div>
+
+    <div class="form-group row  mb-3">
+        <label class="col-sm-3 control-label no-padding-right"> 域名 </label>
+
+        <div class="col-sm-4">
+            <input type="text" placeholder="" class="form-control"
+                   :value="val(oss.host)" name="host">
+
+        </div>
+    </div>
+    <div class="form-group row mb-3">
+        <label class="col-sm-3 control-label no-padding-right"> 仓库名 </label>
+
+        <div class="col-sm-4">
+            <input type="text" placeholder="" class="form-control"
+                   :value="val(oss.bucket)"
+                   name="bucket">
+
+        </div>
+    </div>
+    <div class="form-group row mb-3">
+        <label class="col-sm-3 control-label no-padding-right"> 私有仓库名 </label>
+
+        <div class="col-sm-4">
+            <input type="text" placeholder="存储敏感信息，如数据库备份文件" class="form-control"
+                   :value="val(oss.private_bucket)"
+                   name="private_bucket">
+
+        </div>
+    </div>
+    <div class="form-group row mb-3">
+        <label class="col-sm-3 control-label no-padding-right"> Endpoint（地域节点）</label>
+
+        <div class="col-sm-3">
+            <input type="text" placeholder="" class="form-control"
+                   :value="val(oss.region)"
+                   name="region">
+        </div>
+    </div>
+    <div class="form-group row mb-3">
+        <label class="col-sm-3 control-label no-padding-right" for="syncTemplate"> 主题静态文件同步</label>
+
+        <div class="col-sm-9" style="text-align: start;display: flex;align-items: center;font-size: 24px">
+            <div class="form-check form-switch">
+                <input type="hidden" name="syncTemplate" id="syncTemplateVal" :value="val(oss.syncTemplate)">
+
+                <input class="form-check-input checkbox" type="checkbox" role="switch" id="syncTemplate">
             </div>
+            <span style="font-size: 16px">
+            （需要主题支持）
+                </span>
         </div>
+    </div>
+    <div class="form-group row  mb-3">
+        <label class="col-sm-3 control-label no-padding-right" for="syncHtml"> 静态缓存 html 文件同步</label>
 
-        <div class="form-group">
-            <label class="col-sm-3 control-label no-padding-right"> SecretKey </label>
 
-            <div class="col-sm-6">
-                <input type="text" placeholder="" class="form-control" :value="val(oss.secret_key)"
-                       name="secret_key">
-
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label class="col-sm-3 control-label no-padding-right"> 域名 </label>
-
-            <div class="col-sm-4">
-                <input type="text" placeholder="" class="form-control"
-                       :value="val(oss.host)" name="host">
-
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-3 control-label no-padding-right"> 仓库名 </label>
-
-            <div class="col-sm-3">
-                <input type="text" placeholder="" class="form-control"
-                       :value="val(oss.bucket)"
-                       name="bucket">
-
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-3 control-label no-padding-right"> 私有仓库名 </label>
-
-            <div class="col-sm-3">
-                <input type="text" placeholder="存储敏感信息，如数据库备份文件" class="form-control"
-                       :value="val(oss.private_bucket)"
-                       name="private_bucket">
-
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-3 control-label no-padding-right"> Endpoint（地域节点）</label>
-
-            <div class="col-sm-3">
-                <input type="text" placeholder="" class="form-control"
-                       :value="val(oss.region)"
-                       name="region">
-
+        <div class="col-sm-9" style="text-align: start;display: flex;align-items: center;font-size: 24px">
+            <div class="form-check form-switch">
+                <input type="hidden" name="syncHtml" id="syncHtmlVal" :value="val(oss.syncHtml)">
+                <input class="form-check-input checkbox" type="checkbox" role="switch" id="syncHtml">
             </div>
         </div>
     </div>
-    <div class="form-group">
-        <label class="col-sm-3 control-label no-padding-right"> 主题静态文件同步</label>
+    <div class="form-group row">
+        <label class="col-sm-3 control-label no-padding-right" for="supportHttps"> 启用 HTTPS</label>
 
-        <div class="col-sm-9">
-            <input type="hidden" name="syncTemplate" id="syncTemplateVal">
-            <input id="syncTemplate-switch" style="display: none" type="checkbox"/> （需要主题支持）
+        <div class="col-sm-9" style="text-align: start;display: flex;align-items: center;font-size: 24px">
+            <div class="form-check form-switch">
+                <input type="hidden" name="supportHttps" id="supportHttpsVal" :value="val(oss.supportHttps)">
+                <input class="form-check-input checkbox" type="checkbox" role="switch" id="supportHttps">
+            </div>
         </div>
     </div>
-    <div class="form-group">
-        <label class="col-sm-3 control-label no-padding-right"> 静态缓存 html 文件同步</label>
-
-        <div class="col-sm-9">
-            <input type="hidden" name="syncHtml" id="syncHtmlVal">
-            <input id="syncHtml-switch" style="display: none" type="checkbox"/>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="col-sm-3 control-label no-padding-right"> 启用 HTTPS</label>
-
-        <div class="col-sm-9">
-            <input type="hidden" name="supportHttps" id="supportHttpsVal">
-            <input id="supportHttps-switch" style="display: none" type="checkbox"/>
-        </div>
-    </div>
-    <hr/>
-    <div class="clearfix form-actions">
-        <div class="col-md-offset-3 col-md-9">
-            <button class="btn btn-info" type="button" id="yunstore">
-                提交
-            </button>
-        </div>
+    <hr style="color: #a4a1a1"/>
+    <div class="form-group row mb-3">
+        <div class="col-sm-3"></div>
+        <button class="btn btn-primary" type="button" id="yunstore" style="max-width: 80px;margin-left: 12px">
+            提交
+        </button>
     </div>
 </form>
+</div>
 <input id="gritter-light" checked="" type="checkbox" style="display:none"/>
 <pre id="data" style="display: none">${data}</pre>
 </body>

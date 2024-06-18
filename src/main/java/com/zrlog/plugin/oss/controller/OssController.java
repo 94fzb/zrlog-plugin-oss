@@ -41,6 +41,15 @@ public class OssController {
         keyMap.put("key", "access_key,host,secret_key,private_bucket,bucket,syncTemplate,appId,region,supportHttps,syncHtml");
         session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
             Map map = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
+            if(!Objects.equals(map.get("syncHtml"),"on")){
+                map.remove("syncHtml");
+            }
+            if(!Objects.equals(map.get("syncTemplate"),"on")){
+                map.remove("syncTemplate");
+            }
+            if(!Objects.equals(map.get("supportHttps"),"on")){
+                map.remove("supportHttps");
+            }
             map.put("version", session.getPlugin().getVersion());
             Map<String, Object> data = new HashMap<>();
             data.put("data", new Gson().toJson(map));

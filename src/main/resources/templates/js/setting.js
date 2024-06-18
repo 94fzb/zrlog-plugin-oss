@@ -1,12 +1,15 @@
 $(function () {
     const e = JSON.parse(document.getElementById("data").innerText);
 
-    $("#syncTemplate-switch").bootstrapSwitch('state', e.syncTemplate === 'on');
-    $("#syncTemplateVal").attr("value", e.syncTemplate);
-    $("#supportHttps-switch").bootstrapSwitch('state', e.supportHttps === 'on');
-    $("#supportHttpsVal").attr("value", e.supportHttps);
-    $("#syncHtml-switch").bootstrapSwitch('state', e.syncHtml === 'on');
-    $("#syncHtmlVal").attr("value", e.syncHtml);
+    if(e.syncTemplate === 'on') {
+        document.getElementById("syncTemplate").setAttribute('checked',"checked");
+    }
+    if(e.syncHtml === 'on'){
+        document.getElementById("syncHtml").setAttribute('checked',"checked");
+    }
+    if(e.supportHttps === 'on'){
+        document.getElementById("supportHttps").setAttribute('checked',"checked");
+    }
 
     new Vue({
         el: '#vue-div',
@@ -20,18 +23,21 @@ $(function () {
         }
     });
 
-    $('#syncTemplate-switch').on('switchChange.bootstrapSwitch', function (event, state) {
-        $("#syncTemplateVal").attr("value", state ? "on" : "off");
-    });
-    $('#supportHttps-switch').on('switchChange.bootstrapSwitch', function (event, state) {
-        $("#supportHttpsVal").attr("value", state ? "on" : "off");
-    });
-    $('#syncHtml-switch').on('switchChange.bootstrapSwitch', function (event, state) {
-        $("#syncHtmlVal").attr("value", state ? "on" : "off");
+
+
+    $(".checkbox").map((e) => {
+        $($(".checkbox")[e]).on('click', (event) => {
+            if (event.target.checked) {
+               document.getElementById(event.target.id+"Val").value = 'on';
+            } else {
+                document.getElementById(event.target.id+"Val").value = 'off';
+            }
+        });
     });
 
-    $(".btn-info").click(function () {
+    $(".btn-primary").click(function () {
         const formId = "ajax" + $(this).attr("id");
+        console.info($("#" + formId).serialize());
         $.post('update', $("#" + formId).serialize(), function (data) {
             if (data.success || data.status === 200) {
                 $.gritter.add({
