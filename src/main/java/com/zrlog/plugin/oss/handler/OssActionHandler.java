@@ -21,7 +21,6 @@ public class OssActionHandler extends ClientActionHandler {
         if (Objects.isNull(runnable)) {
             return;
         }
-        System.out.println("runnable = " + runnable);
         runnable.run();
     }
 }
