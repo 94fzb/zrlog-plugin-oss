@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,6 +30,7 @@ public class SyncTemplateStaticResourceRunnable implements Runnable {
 
     private final Map<String, Object> fileInfoCacheMap = new TreeMap<>();
     private final String cacheKeyMapKey = "cacheMap";
+    private final ReentrantLock reentrantLock = new ReentrantLock();
 
     public SyncTemplateStaticResourceRunnable(IOSession session) {
         this.session = session;
@@ -94,10 +96,12 @@ public class SyncTemplateStaticResourceRunnable implements Runnable {
 
     @Override
     public void run() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("key", "syncTemplate,syncHtml," + cacheKeyMapKey);
-        Map<String, String> responseMap = (Map<String, String>) session.getResponseSync(ContentType.JSON, map, ActionType.GET_WEBSITE, Map.class);
+        reentrantLock.lock();
         try {
+            Map<String, Object> map = new HashMap<>();
+            map.put("key", "syncTemplate,syncHtml," + cacheKeyMapKey);
+            Map<String, String> responseMap = (Map<String, String>) session.getResponseSync(ContentType.JSON, map, ActionType.GET_WEBSITE, Map.class);
+            //reload cache
             preloadCache(responseMap);
             TemplatePath templatePath = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.CURRENT_TEMPLATE, TemplatePath.class);
             BlogRunTime blogRunTime = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.BLOG_RUN_TIME, BlogRunTime.class);
@@ -111,6 +115,8 @@ public class SyncTemplateStaticResourceRunnable implements Runnable {
             saveCacheToDb();
         } catch (Exception e) {
             LOGGER.warning("Sync error " + e.getMessage());
+        } finally {
+            reentrantLock.unlock();
         }
     }
 

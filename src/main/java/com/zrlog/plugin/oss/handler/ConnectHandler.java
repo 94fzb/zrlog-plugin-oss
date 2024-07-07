@@ -15,8 +15,15 @@ public class ConnectHandler implements IConnectHandler {
 
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
+    private SyncTemplateStaticResourceRunnable syncTemplateStaticResourceRunnable;
+
     @Override
     public void handler(IOSession ioSession, MsgPacket msgPacket) {
-        executorService.scheduleAtFixedRate(new SyncTemplateStaticResourceRunnable(ioSession), 0, 1, RunConstants.runType == RunType.BLOG ? TimeUnit.SECONDS : TimeUnit.HOURS);
+        this.syncTemplateStaticResourceRunnable = new SyncTemplateStaticResourceRunnable(ioSession);
+        executorService.scheduleAtFixedRate(syncTemplateStaticResourceRunnable, 0, 1, RunConstants.runType == RunType.BLOG ? TimeUnit.SECONDS : TimeUnit.HOURS);
+    }
+
+    public SyncTemplateStaticResourceRunnable getSyncTemplateStaticResourceRunnable() {
+        return syncTemplateStaticResourceRunnable;
     }
 }
